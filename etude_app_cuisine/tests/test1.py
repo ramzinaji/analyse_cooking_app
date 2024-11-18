@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import altair as alt
+from utils import is_seasonal
 
 # Chemin du dossier contenant les fichiers CSV
 
@@ -42,3 +43,36 @@ chart = alt.Chart(df_selected_month).mark_bar().encode(
 
 # Affichage du graphique dans Streamlit
 st.altair_chart(chart, use_container_width=True)
+
+### New feature ###
+# Fonctionnalité sur les ingrédients choisis par l'utilisateur
+st.title("Votre ingrédient est-il de saison ?")
+
+user_ingredient = st.text_area("Entrez votre ingrédients :", height=5)
+user_season = st.text_area("Entrez votre saison :", height=5)
+
+
+# answer = is_seasonal(str(user_ingredient),int(user_season),dico_all_month_ingredient)
+
+# if st.button("Afficher le texte"):
+#     st.write(answer)
+
+
+# Validation des données et bouton
+if st.button("Vérifier si de saison"):
+    if user_ingredient and user_season:
+        try:
+            # Conversion du mois en entier
+            month = int(user_season.strip())
+            ingredient= str(user_ingredient.strip())
+            # Appel de la fonction pour vérifier si l'ingrédient est de saison
+            answer = is_seasonal(ingredient, month, dico_all_month_ingredient)
+            st.write(answer)
+        except ValueError:
+            st.write("Veuillez entrer un mois valide (1-12).")
+    else:
+        st.write("Veuillez entrer un ingrédient et un mois pour continuer.")
+
+
+
+
