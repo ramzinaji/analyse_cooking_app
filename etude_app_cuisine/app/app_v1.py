@@ -6,7 +6,7 @@ from utils import is_seasonal
 # Chemin du dossier contenant les fichiers CSV
 
 
-chemin = '/Users/ramzi/Documents/Telecom_Master/Kit Big Data/projet_analyse_cuisine/etude_app_cuisine/tests/data/dico_all_month_ingredient'
+chemin = './data/dico_all_month_ingredient'
 
 # Chargement des données pour chaque mois
 dico_all_month_ingredient = {}
@@ -58,6 +58,10 @@ user_season = st.text_area("Entrez votre saison :", height=5)
 #     st.write(answer)
 
 
+for i in range(1, 13):
+    # Index sur les ingrédients nécessaire pour fonctionnement de is_seasonal
+    dico_all_month_ingredient[i] = dico_all_month_ingredient[i].set_index('ingredients')
+
 # Validation des données et bouton
 if st.button("Vérifier si de saison"):
     if user_ingredient and user_season:
@@ -66,8 +70,11 @@ if st.button("Vérifier si de saison"):
             month = int(user_season.strip())
             ingredient= str(user_ingredient.strip())
             # Appel de la fonction pour vérifier si l'ingrédient est de saison
-            answer = is_seasonal(ingredient, month, dico_all_month_ingredient)
-            st.write(answer)
+            if ingredient in dico_all_month_ingredient[month].index.values:
+                answer = is_seasonal(ingredient, month, dico_all_month_ingredient)
+                st.write(answer)
+            else:
+                st.write("L'ingrédient n'est pas dans notre base de données.")
         except ValueError:
             st.write("Veuillez entrer un mois valide (1-12).")
     else:

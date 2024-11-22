@@ -8,16 +8,18 @@ from collections import Counter
 from sklearn.feature_extraction.text import TfidfVectorizer
 import spacy
 import streamlit as st
+import sys
 
 nlp = spacy.load("en_core_web_sm")
 
 # Load the data
+sys.path.append('C:/Users/nawfal/Documents/telecom/periode1/kit_big_data/project/analyse_cooking_app/etude_app_cuisine/app/data/kaggle')
 
-df_interactions_train=pd.read_csv('/Users/ramzi/Projet_Kit_Big_Data/data/interactions_test.csv')
-df_pp_recipes=pd.read_csv('/Users/ramzi/Projet_Kit_Big_Data/data/PP_recipes.csv')
-df_pp_users=pd.read_csv('/Users/ramzi/Projet_Kit_Big_Data/data/PP_users.csv')
-df_RAW_interactions=pd.read_csv('/Users/ramzi/Projet_Kit_Big_Data/data/RAW_interactions.csv')
-df_RAW_recipes=pd.read_csv('/Users/ramzi/Projet_Kit_Big_Data/data/RAW_recipes.csv')
+# df_interactions_train=pd.read_csv('./data/kaggle/interactions_test.csv')
+df_pp_recipes=pd.read_csv('./data/kaggle/PP_recipes.csv')
+# df_pp_users=pd.read_csv('./data/kaggle/PP_users.csv')
+# df_RAW_interactions=pd.read_csv('./data/kaggle/RAW_interactions.csv')
+df_RAW_recipes=pd.read_csv('.data/kaggle/RAW_recipes.csv')
 
 # Preprocessed the data
 
@@ -42,8 +44,6 @@ def create_monthly_dico_ingredient(month : int):
         
     Month_Ingredients=pd.DataFrame(df).T
     Month_Ingredients=Month_Ingredients.fillna(0)
-    Month_Ingredients
-    
     return Month_Ingredients
 
 def count_ingredients(df_ingredient : pd.DataFrame):
@@ -82,4 +82,4 @@ dico_all_month_ingredient={}
 for month in range(1,13):
     dico_all_month_ingredient[month]=lemmetize_and_sort(count_ingredients(create_monthly_dico_ingredient(month)))
 
-
+print(dico_all_month_ingredient[1])
