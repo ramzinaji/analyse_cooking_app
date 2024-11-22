@@ -1,3 +1,4 @@
+"""streamlit application version 1"""
 import streamlit as st
 import pandas as pd
 import altair as alt
@@ -69,16 +70,19 @@ if st.button("Vérifier si de saison"):
             # Conversion du mois en entier
             month = int(user_season.strip())
             ingredient= str(user_ingredient.strip())
-            # Appel de la fonction pour vérifier si l'ingrédient est de saison
-            if ingredient in dico_all_month_ingredient[month].index.values:
-                answer = is_seasonal(ingredient, month, dico_all_month_ingredient)
-                st.write(answer)
-            else:
-                st.write("L'ingrédient n'est pas dans notre base de données.")
+            if month < 1 or month > 12:
+                st.markdown("Veuillez entrer un mois valide (1-12).")
+            else :
+                # Appel de la fonction pour vérifier si l'ingrédient est de saison
+                if ingredient in dico_all_month_ingredient[month].index.values:
+                    answer = is_seasonal(ingredient, month, dico_all_month_ingredient)
+                    st.markdown(answer)
+                else:
+                    st.markdown("L'ingrédient n'est pas dans notre base de données.")
         except ValueError:
-            st.write("Veuillez entrer un mois valide (1-12).")
+            st.markdown("error in season button.")
     else:
-        st.write("Veuillez entrer un ingrédient et un mois pour continuer.")
+        st.markdown("Veuillez entrer un ingrédient et un mois pour continuer.")
 
 
 
