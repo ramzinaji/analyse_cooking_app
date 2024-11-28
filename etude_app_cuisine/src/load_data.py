@@ -37,13 +37,23 @@ for month in range(1, 13):
     dico_all_month_ingredient[month] = lemmatized_and_sorted
 
     # Sauvegarde du DataFrame pour le mois en question en CSV
-    lemmatized_and_sorted.to_csv(f'{save_path}/dico_all_month_ingredient_{month}.csv')
+    lemmatized_and_sorted.to_csv(f'{save_path}/dico_all_month_ingredient{month}.csv')
 
 
 print("Tous les fichiers CSV ont été sauvegardés avec succès.")
 
+# Load mapping
 mapping = preprocessor.mapping()
 mapping.to_csv(f'{save_path}/mapping.csv')
 
 
-#print( map.head() )
+# Load df_recipes_tokenised
+
+df_recipes_tokenised=df_RAW_recipes_merged.copy()
+
+df_recipes_tokenised.ingredients=df_recipes_tokenised.ingredients.apply(lambda x: preprocessor.tokenised_recipe(x,mapping) )
+
+df_recipes_tokenised['submitted'] = df_recipes_tokenised['submitted'].dt.strftime('%Y-%m-%d')
+
+df_recipes_tokenised.to_json("tests/data/data_recipes_tokenised.json", orient="records", indent=4)
+
