@@ -77,7 +77,7 @@ if st.button("Vérifier si de saison"):
 
 
 #New Feature 
-df_recipes_tokenised = pd.read_json("data/data_recipes_tokenised.json", orient="records")
+df_recipes_tokenised = pd.read_json("data/datadata.json", orient="records")
 df_recipes_tokenised['submitted'] = pd.to_datetime(df_recipes_tokenised['submitted'])
 
 # !!! WARNING !!! il faut utiliser le dico dico_all_month_ingredient_test car prétraité sinon KEYERROR
