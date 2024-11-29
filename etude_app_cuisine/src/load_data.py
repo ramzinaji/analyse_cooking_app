@@ -4,12 +4,12 @@ import os
 from models import Preprocessing
 
 # Chemin du dossier pour sauvegarder les fichiers CSV
-save_path = '/Users/ramzi/Documents/Telecom_Master/Kit Big Data/projet_analyse_cuisine/etude_app_cuisine/tests/data'
+save_path = 'etude_app_cuisine/src/data/'
 
 # Assurez-vous que le répertoire de sauvegarde existe
 os.makedirs(save_path, exist_ok=True)
 
-# Charger le DataFrame brut (exemple fictif)
+# Charger le DataFrame brut (exemple fictif), préciser le chemin dans le README
 df_RAW_recipes = pd.read_csv('/Users/ramzi/Projet_Kit_Big_Data/data/RAW_recipes.csv')
 df_pp_recipes=pd.read_csv('/Users/ramzi/Projet_Kit_Big_Data/data/PP_recipes.csv')
 

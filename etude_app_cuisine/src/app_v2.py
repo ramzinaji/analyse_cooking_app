@@ -7,7 +7,7 @@ from models import SeasonalityChecker
 # Chemin du dossier contenant les fichiers CSV
 
 
-chemin = '/Users/ramzi/Documents/Telecom_Master/Kit Big Data/projet_analyse_cuisine/etude_app_cuisine/src/data/dico_all_month_ingredient'
+chemin = 'data/dico_all_month_ingredient'
 
 
 # Chargement des données pour chaque mois
