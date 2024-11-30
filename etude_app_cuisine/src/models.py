@@ -4,6 +4,10 @@ import inflect
 from sklearn.preprocessing import normalize
 import numpy as np
 import spacy
+import streamlit as st
+import matplotlib.pyplot as plt
+
+
 
 
 
@@ -131,7 +135,38 @@ class SeasonalityChecker:
             "July", "August", "September", "October", "November", "December"
         ]
 
-    def is_seasonal(self, ingredient, season):
+    def plot_ingredient_frequency(self, input_1):
+        """
+        Affiche un graphique de la fréquence mensuelle de deux ingrédients.
+
+        :param input_1: Nom du premier ingrédient.
+        :param input_2: Nom du second ingrédient.
+        :param dico_all_month_ingredient: Dictionnaire contenant les fréquences mensuelles des ingrédients.
+        """
+        # Récupération des fréquences pour les ingrédients sur 12 mois
+        output_1 = []
+        for month in range(1, 13):
+            output_1.append(self.dico_all_month_ingredient[month].loc[input_1].freq)
+            
+        
+        st.subheader(f"Fréquence d'apparition de {input_1}  sur 12 mois")
+
+        # Création du graphique
+        fig, ax = plt.subplots()
+        ax.plot(range(1, 13), output_1, label=input_1, marker='o')
+        ax.set_title(f'Fréquence mensuelle : {input_1} ')
+        ax.set_xlabel('Month')
+        ax.set_ylabel('Frequency (%)')
+        #ax.set_ylim(0, 50)  # Échelle de 0 à 50 %
+        ax.legend()
+        ax.grid(True)
+
+        # Affichage du graphique dans Streamlit
+        st.pyplot(fig)
+
+
+
+    def is_seasonal(self, ingredient):
         """
         Vérifie si un ingrédient est de saison pour un mois donné.
         :param ingredient: Nom de l'ingrédient.
@@ -150,10 +185,8 @@ class SeasonalityChecker:
 
             if max_frequency == 0:
                 return f"Your ingredient '{ingredient}' is not in our database."
-            elif season == best_season:
-                return f"Good choice, the best season to cook {ingredient} is {self.months[best_season - 1]}."
             else:
-                return f"You should not cook {ingredient} in {self.months[season - 1]}."
+                return f"You should  cook {ingredient} in {self.months[best_season - 1]}."
         except KeyError:
             return f"Your ingredient '{ingredient}' is not in our database."
         except Exception as e:
@@ -312,12 +345,17 @@ class IngredientMatcher:
     def seasonal_recommendations_1(self, ingredient, n):
         threshold = 0.1
         season = self.ingredient_best_seasonal(ingredient)
-        list_ingredients_match = list(self.ingredient_match(ingredient, season).keys())
+        dico_ingredient = self.ingredient_match(ingredient, season)
+        sorted_dict = dict(sorted(dico_ingredient.items(), key=lambda item: item[1], reverse=True))
+        list_ingredients_match = list(sorted_dict.keys())
         list_valuable_match = []
         c = 0
+        total_count = 0
 
         while c < n:
-            match = list_ingredients_match[c]
+            
+            total_count +=1
+            match = list_ingredients_match[total_count]
             
             # Obtenir les valeurs renvoyées par ingredient_std(match)
             std_result = self.ingredient_std(match)
@@ -328,13 +366,32 @@ class IngredientMatcher:
             else:
                 value = std_result[1]  # Si c'est un entier directement
             
-          
+            
             # Comparaison avec 12
             if value < 12:
                 list_valuable_match.append(match)
+                c += 1
             elif std_result[1][0] > threshold:
                 list_valuable_match.append(match)
+                c += 1
             
-            c += 1
+            #c += 1
 
-        return self.recipes_filter_by_ingredients(list_valuable_match, season)
+        return self.recipes_filter_by_ingredients(list_valuable_match, season),list_valuable_match
+
+
+    
+    def ingredient_score(self,ingredient):
+
+        std_result = self.ingredient_std(ingredient)
+        
+        if isinstance(std_result[1], (list, tuple)) and len(std_result[1]) > 1:
+            nbre_month = std_result[1][1]
+        else:
+            nbre_month = std_result[1] 
+
+        if nbre_month < 12:
+            return nbre_month
+            
+        else:
+            return std_result[1][0]

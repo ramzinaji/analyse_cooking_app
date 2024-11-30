@@ -19,8 +19,33 @@ for i in range(1, 13):
     dico_all_month_ingredient[i].columns = ['ingredients', 'apparences', 'freq']
 
 
+dico_all_month_ingredient_test={}
 
-# Interface Streamlit
+
+for i in range(1, 13):
+    dico_all_month_ingredient_test[i]= dico_all_month_ingredient[i]
+    dico_all_month_ingredient_test[i] = dico_all_month_ingredient_test[i].set_index('ingredients')
+    dico_all_month_ingredient_test[i].index.name = None  
+
+df_recipes_tokenised = pd.read_json("data/data_recipes_tokenised.json", orient="records")
+df_recipes_tokenised['submitted'] = pd.to_datetime(df_recipes_tokenised['submitted'])
+
+# Initialisation des classes 
+matcher = IngredientMatcher(df_recipes_tokenised,dico_all_month_ingredient_test)
+season_checker = SeasonalityChecker(dico_all_month_ingredient_test)
+
+
+
+
+
+
+
+###### New Feature ########
+
+
+thresold = 0.1#voir debug pour comprendre cette valeur
+
+
 st.title("Analyse de la fréquence des ingrédients par mois")
 
 # Sélection du mois avec un slider
@@ -32,7 +57,12 @@ max_ingredients = len(dico_all_month_ingredient[selected_month]) - 2
 top = st.number_input("Nombre d'ingrédients à afficher", min_value=1, max_value=max_ingredients, value=20)
 
 # Affichage de l'histogramme pour le mois sélectionné en conservant l'ordre des ingrédients
-df_selected_month = dico_all_month_ingredient[selected_month].iloc[2:top]
+df_selected_month = dico_all_month_ingredient[selected_month]
+
+df_selected_month['score']  =  df_selected_month.ingredients.apply(lambda x : matcher.ingredient_score(x))
+df_selected_month = df_selected_month[df_selected_month.score > thresold]
+df_selected_month = df_selected_month.iloc[2:top]
+
 
 # Création de l'histogramme avec Altair
 chart = alt.Chart(df_selected_month).mark_bar().encode(
@@ -56,14 +86,8 @@ st.altair_chart(chart, use_container_width=True)
 
 
 
-# Prétaitement (cette partie pourra être fonctionnalisé dans le fichier utils)
-dico_all_month_ingredient_test={}
-for i in range(1, 13):
-    dico_all_month_ingredient_test[i]= dico_all_month_ingredient[i]
-    dico_all_month_ingredient_test[i] = dico_all_month_ingredient_test[i].set_index('ingredients')
-    dico_all_month_ingredient_test[i].index.name = None  
 
-season_checker = SeasonalityChecker(dico_all_month_ingredient_test)
+
 
 
 # Fonctionnalité sur les ingrédients choisis par l'utilisateur
@@ -101,11 +125,7 @@ if st.button("Vérifier meilleure saison"):
 
 
 
-df_recipes_tokenised = pd.read_json("data/data_recipes_tokenised.json", orient="records")
-df_recipes_tokenised['submitted'] = pd.to_datetime(df_recipes_tokenised['submitted'])
 
-# !!! WARNING !!! il faut utiliser le dico dico_all_month_ingredient_test car prétraité sinon KEYERROR
-matcher = IngredientMatcher(df_recipes_tokenised,dico_all_month_ingredient_test)
 
 st.title("Vous ne savez pas quoi cuisiner ? Trouvons la meilleure recette de saison qui vous correspond !")
 
