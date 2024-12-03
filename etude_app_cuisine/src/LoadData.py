@@ -68,7 +68,7 @@ List_output =[
     'RAW_recipes.csv'
 ]
 
-path = 'etude_app_cuisine/src/data_loaded/'
+path = 'data_loaded/'
 for i in range(len(List_url)):
     gdown.download(List_url[i], path + List_output[i], quiet=False)
     print(f'Fichier téléchargé : {List_output[i]}')
