@@ -6,8 +6,7 @@ from models import SeasonalityChecker
 
 # Chemin du dossier contenant les fichiers CSV
 
-
-chemin = 'data/dico_all_month_ingredient'
+chemin = 'data_loaded/dico_all_month_ingredient'
 
 
 # Chargement des données pour chaque mois
@@ -27,7 +26,7 @@ for i in range(1, 13):
     dico_all_month_ingredient_test[i] = dico_all_month_ingredient_test[i].set_index('ingredients')
     dico_all_month_ingredient_test[i].index.name = None  
 
-df_recipes_tokenised = pd.read_json("data/data_recipes_tokenised.json", orient="records")
+df_recipes_tokenised = pd.read_json("data_loaded/df_recipes_tokenised.json", orient="records")
 df_recipes_tokenised['submitted'] = pd.to_datetime(df_recipes_tokenised['submitted'])
 
 # Initialisation des classes 
