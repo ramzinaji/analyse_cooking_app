@@ -27,6 +27,8 @@ url_dico_all_month_ingredient10 = url + '1X20cYFJYjJ61f9JCeUaMzMO8PnAetoV0'
 url_dico_all_month_ingredient11 = url + '1CItK_q5r2uaRFRj1DsQlsb_DwYUSfN7q'
 url_dico_all_month_ingredient12 = url + '1HD2iIHzReNybdcdPxKpLQqrM3AXPSAoN'
 url_mapping = url + '1KWG2sRTxr74Opcth0dFF8fjNUU5qw3Te'
+url_RAW_interactions = url + '13SSK3DpPw9Az7bcIFja_qIpJARGoHHAr'
+url_RAW_recipes = url + '1GTx6HsCIoWKlGetIC_2KQWMEtJ-3Hts3'
 
 List_url = [
     url_df_recipes_tokenised,
@@ -42,7 +44,9 @@ List_url = [
     url_dico_all_month_ingredient10,
     url_dico_all_month_ingredient11,
     url_dico_all_month_ingredient12,
-    url_mapping
+    url_mapping,
+    url_RAW_interactions,
+    url_RAW_recipes
 ]
 
 List_output =[
@@ -59,7 +63,9 @@ List_output =[
     'dico_all_month_ingredient10.csv',
     'dico_all_month_ingredient11.csv',
     'dico_all_month_ingredient12.csv',
-    'mapping.json'
+    'mapping.json',
+    'RAW_interactions.csv',
+    'RAW_recipes.csv'
 ]
 
 path = 'etude_app_cuisine/src/data_loaded/'
