@@ -9,6 +9,9 @@ sys.path.append(script_dir)
 from models import IngredientMatcher
 from models import SeasonalityChecker
 
+print(f"Debug: IngredientMatcher exists: {IngredientMatcher}")
+print(f"Debug: SeasonalityChecker exists: {SeasonalityChecker}")
+
 # Path to the data_loaded folder
 data_dir = os.path.join(script_dir, "data_loaded")
 
@@ -40,8 +43,10 @@ df_recipes_tokenised['submitted'] = pd.to_datetime(df_recipes_tokenised['submitt
 
 # Initialisation des classes 
 matcher = IngredientMatcher(df_recipes_tokenised,dico_all_month_ingredient_test)
-season_checker = SeasonalityChecker(dico_all_month_ingredient_test)
+print(f"Debug: matcher instance created: {matcher}")
 
+season_checker = SeasonalityChecker(dico_all_month_ingredient_test)
+print(f"Debug: season_checker instance created: {season_checker}")
 
 
 
