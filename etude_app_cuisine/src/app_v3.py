@@ -3,10 +3,18 @@ import pandas as pd
 import altair as alt
 from models import IngredientMatcher
 from models import SeasonalityChecker
+import os
 
 # Chemin du dossier contenant les fichiers CSV
 
-chemin = 'data_loaded/dico_all_month_ingredient'
+# Get the current directory of the script
+script_dir = os.path.dirname(os.path.abspath(__file__))
+
+# Path to the data_loaded folder
+data_dir = os.path.join(script_dir, "data_loaded")
+
+# Chemin du dossier contenant les fichiers CSV
+chemin = os.path.join(data_dir, 'dico_all_month_ingredient')
 
 
 # Chargement des données pour chaque mois
