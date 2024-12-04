@@ -25,7 +25,10 @@ jobs:
           pip install -r etude_app_cuisine/requirements.txt
           pip show gdown
       - name: Ensure data_loaded directory exists
-        run: mkdir etude_app_cuisine/src/data_loaded
+        run: |
+          if [ ! -d etude_app_cuisine/src/data_loaded ]; then
+            mkdir etude_app_cuisine/src/data_loaded
+          fi
       - name: Generate data
         run: |
           python etude_app_cuisine/src/LoadData.py
