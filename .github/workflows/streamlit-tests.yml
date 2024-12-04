@@ -28,11 +28,6 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip show gdown
-      - name: Ensure data_loaded directory exists
-        run: |
-          if [ ! -d etude_app_cuisine/src/data_loaded ]; then
-            mkdir etude_app_cuisine/src/data_loaded
-          fi
       - name: Generate data
         run: |
           python etude_app_cuisine/src/LoadData.py
