@@ -7,7 +7,7 @@ import importlib
 # Get the current directory of the script
 script_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(script_dir)
-from models
+import models
 
 importlib.reload(models)
 
