@@ -1,14 +1,13 @@
 import streamlit as st
 import pandas as pd
 import altair as alt
-from models import IngredientMatcher
-from models import SeasonalityChecker
 import os
-
-# Chemin du dossier contenant les fichiers CSV
-
+import sys
 # Get the current directory of the script
 script_dir = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(script_dir)
+from models import IngredientMatcher
+from models import SeasonalityChecker
 
 # Path to the data_loaded folder
 data_dir = os.path.join(script_dir, "data_loaded")
