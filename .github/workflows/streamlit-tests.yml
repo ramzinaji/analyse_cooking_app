@@ -30,7 +30,7 @@ jobs:
           pip show gdown
       - name: Generate data
         run: |
-          python etude_app_cuisine/src/LoadData.py
+          python LoadData.py
       - uses: streamlit/streamlit-app-action@v0.0.3
         with:
           app-path: etude_app_cuisine/src/app_v3.py
