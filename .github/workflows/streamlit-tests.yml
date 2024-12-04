@@ -12,25 +12,31 @@ permissions:
 jobs:
   streamlit:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: etude_app_cuisine/src
     steps:
       - uses: actions/checkout@v4
+      
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+
       - name: Clear pip cache
         run: pip cache purge
+
       - name: Install requirements
-        working-directory: etude_app_cuisine
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          pip install -r etude_app_cuisine/requirements.txt
           pip show gdown
+
       - name: Generate data
-        run: |
-          python LoadData.py
-      - uses: streamlit/streamlit-app-action@v0.0.3
+        working-directory: etude_app_cuisine/src
+        run: python LoadData.py
+
+      - name: List generated data files
+        working-directory: etude_app_cuisine/src
+        run: ls -l data_loaded
+
+      - name: Run Streamlit tests
+        uses: streamlit/streamlit-app-action@v0.0.3
         with:
           app-path: etude_app_cuisine/src/app_v3.py
