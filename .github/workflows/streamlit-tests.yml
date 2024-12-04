@@ -17,10 +17,13 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+      - name: Clear pip cache
+        run: pip cache purge
       - name: Install requirements
         run: |
           python -m pip install --upgrade pip
           pip install -r etude_app_cuisine/requirements.txt
+          pip show gdown
       - name: Generate data
         run: |
           python etude_app_cuisine/src/LoadData.py
