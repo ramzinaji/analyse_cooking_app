@@ -29,6 +29,9 @@ url_dico_all_month_ingredient12 = url + '1HD2iIHzReNybdcdPxKpLQqrM3AXPSAoN'
 url_mapping = url + '1KWG2sRTxr74Opcth0dFF8fjNUU5qw3Te'
 url_RAW_interactions = url + '13SSK3DpPw9Az7bcIFja_qIpJARGoHHAr'
 url_RAW_recipes = url + '1GTx6HsCIoWKlGetIC_2KQWMEtJ-3Hts3'
+url_df_recipes_stats = url + '1w5UNQ_xDX7Txcxzz_XGA8yW_QnM8WpwA'  
+url_RAW_recipes_json = url + '1zZ1cO20QQubjsrkpydwjo0cpzmt3YcmR'
+url_RAW_interactions_json = url + '1Ngz-ASoCXy4mlgf8BWFfYeZlrQuU3gln'
 
 List_url = [
     url_df_recipes_tokenised,
@@ -46,7 +49,10 @@ List_url = [
     url_dico_all_month_ingredient12,
     url_mapping,
     url_RAW_interactions,
-    url_RAW_recipes
+    url_RAW_recipes,
+    url_df_recipes_stats,
+    url_RAW_recipes_json,
+    url_RAW_interactions_json
 ]
 
 List_output =[
@@ -65,7 +71,11 @@ List_output =[
     'dico_all_month_ingredient12.csv',
     'mapping.json',
     'RAW_interactions.csv',
-    'RAW_recipes.csv'
+    'RAW_recipes.csv',
+    'df_recipes_stats.json',
+    'df_RAW_recipes.json',
+    'df_RAW_interactions.json'
+    
 ]
 
 path = 'data_loaded/'
