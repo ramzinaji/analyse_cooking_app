@@ -3,14 +3,16 @@ import pandas as pd
 import altair as alt
 import os
 import sys
+import importlib
 # Get the current directory of the script
 script_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(script_dir)
-from models import IngredientMatcher
-from models import SeasonalityChecker
+from models
 
-print(f"Debug: IngredientMatcher exists: {IngredientMatcher}")
-print(f"Debug: SeasonalityChecker exists: {SeasonalityChecker}")
+importlib.reload(models)
+
+print(f"Debug: IngredientMatcher exists: {models.IngredientMatcher}")
+print(f"Debug: SeasonalityChecker exists: {models.SeasonalityChecker}")
 
 # Path to the data_loaded folder
 data_dir = os.path.join(script_dir, "data_loaded")
@@ -42,10 +44,10 @@ df_recipes_tokenised = pd.read_json(chemin, orient="records")
 df_recipes_tokenised['submitted'] = pd.to_datetime(df_recipes_tokenised['submitted'])
 
 # Initialisation des classes 
-matcher = IngredientMatcher(df_recipes_tokenised,dico_all_month_ingredient_test)
+matcher = models.IngredientMatcher(df_recipes_tokenised,dico_all_month_ingredient_test)
 print(f"Debug: matcher instance created: {matcher}")
 
-season_checker = SeasonalityChecker(dico_all_month_ingredient_test)
+season_checker = models.SeasonalityChecker(dico_all_month_ingredient_test)
 print(f"Debug: season_checker instance created: {season_checker}")
 
 
