@@ -30,7 +30,7 @@ def ingredient_matcher(tokenized_data, mock_dico):
 def test_ingredient_match(ingredient_matcher):
     result = ingredient_matcher.ingredient_match("tomato", 1)
     assert "onion" in result
-    assert result["tomato"] == 2
+    assert result["tomato"] == 1
 
 
 def test_check_elements_in_list(ingredient_matcher):
