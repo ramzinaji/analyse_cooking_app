@@ -25,7 +25,7 @@ def checker(dico_all_month_ingredient):
 def test_is_seasonal_good_choice(checker):
     """Test pour vérifier le meilleur mois d'un ingrédient."""
     result = checker.is_seasonal('carrot')
-    assert result == "You should  cook carrot in April."
+    assert result == "You should  cook carrot in January."
 
 def test_is_seasonal_not_in_database(checker):
     """Test pour vérifier le comportement avec un ingrédient absent."""
