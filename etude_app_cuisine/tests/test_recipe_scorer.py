@@ -10,7 +10,7 @@ def df_recipes_stats():
     # Crée un DataFrame de test pour les recettes avec des notes et des interactions
     data = {
         'recipe_id': [1, 2, 3, 4, 5],
-        'nb_ratings': [10, 50, 5, 0, 100],
+        'nb_ratings': [10, 50, 5, 1, 100],
         'mean_rating': [4.5, 3.0, 5.0, 4.0, 2.0]
     }
     return pd.DataFrame(data)
