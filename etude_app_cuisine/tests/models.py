@@ -4,6 +4,12 @@ import inflect
 from sklearn.preprocessing import normalize
 import numpy as np
 import spacy
+import streamlit as st
+import matplotlib.pyplot as plt
+
+
+from scipy.stats import norm
+from scipy.optimize import minimize
 
 
 
@@ -131,7 +137,38 @@ class SeasonalityChecker:
             "July", "August", "September", "October", "November", "December"
         ]
 
-    def is_seasonal(self, ingredient, season):
+    def plot_ingredient_frequency(self, input_1):
+        """
+        Affiche un graphique de la fréquence mensuelle de deux ingrédients.
+
+        :param input_1: Nom du premier ingrédient.
+        :param input_2: Nom du second ingrédient.
+        :param dico_all_month_ingredient: Dictionnaire contenant les fréquences mensuelles des ingrédients.
+        """
+        # Récupération des fréquences pour les ingrédients sur 12 mois
+        output_1 = []
+        for month in range(1, 13):
+            output_1.append(self.dico_all_month_ingredient[month].loc[input_1].freq)
+            
+        
+        st.subheader(f"Fréquence d'apparition de {input_1}  sur 12 mois")
+
+        # Création du graphique
+        fig, ax = plt.subplots()
+        ax.plot(range(1, 13), output_1, label=input_1, marker='o')
+        ax.set_title(f'Fréquence mensuelle : {input_1} ')
+        ax.set_xlabel('Month')
+        ax.set_ylabel('Frequency (%)')
+        #ax.set_ylim(0, 50)  # Échelle de 0 à 50 %
+        ax.legend()
+        ax.grid(True)
+
+        # Affichage du graphique dans Streamlit
+        st.pyplot(fig)
+
+
+
+    def is_seasonal(self, ingredient):
         """
         Vérifie si un ingrédient est de saison pour un mois donné.
         :param ingredient: Nom de l'ingrédient.
@@ -150,10 +187,8 @@ class SeasonalityChecker:
 
             if max_frequency == 0:
                 return f"Your ingredient '{ingredient}' is not in our database."
-            elif season == best_season:
-                return f"Good choice, the best season to cook {ingredient} is {self.months[best_season - 1]}."
             else:
-                return f"You should not cook {ingredient} in {self.months[season - 1]}."
+                return f"You should  cook {ingredient} in {self.months[best_season - 1]}."
         except KeyError:
             return f"Your ingredient '{ingredient}' is not in our database."
         except Exception as e:
@@ -312,12 +347,17 @@ class IngredientMatcher:
     def seasonal_recommendations_1(self, ingredient, n):
         threshold = 0.1
         season = self.ingredient_best_seasonal(ingredient)
-        list_ingredients_match = list(self.ingredient_match(ingredient, season).keys())
+        dico_ingredient = self.ingredient_match(ingredient, season)
+        sorted_dict = dict(sorted(dico_ingredient.items(), key=lambda item: item[1], reverse=True))
+        list_ingredients_match = list(sorted_dict.keys())
         list_valuable_match = []
         c = 0
+        total_count = 0
 
         while c < n:
-            match = list_ingredients_match[c]
+            
+            total_count +=1
+            match = list_ingredients_match[total_count]
             
             # Obtenir les valeurs renvoyées par ingredient_std(match)
             std_result = self.ingredient_std(match)
@@ -328,13 +368,120 @@ class IngredientMatcher:
             else:
                 value = std_result[1]  # Si c'est un entier directement
             
-          
+            
             # Comparaison avec 12
             if value < 12:
                 list_valuable_match.append(match)
+                c += 1
             elif std_result[1][0] > threshold:
                 list_valuable_match.append(match)
+                c += 1
             
-            c += 1
+            #c += 1
 
-        return self.recipes_filter_by_ingredients(list_valuable_match, season)
+        return self.recipes_filter_by_ingredients(list_valuable_match, season),list_valuable_match
+
+
+    
+    def ingredient_score(self,ingredient):
+
+        std_result = self.ingredient_std(ingredient)
+        
+        if isinstance(std_result[1], (list, tuple)) and len(std_result[1]) > 1:
+            nbre_month = std_result[1][1]
+        else:
+            nbre_month = std_result[1] 
+
+        if nbre_month < 12:
+            return nbre_month
+            
+        else:
+            return std_result[1][0]
+        
+        
+#### Classes scoring ####
+
+class RecipeScorer:
+    def __init__(self, df_recipes_stats):
+        """
+        Initialise la classe RecipeScorer avec les statistiques des recettes.
+
+        Parameters:
+        df_recipes_stats (DataFrame): Le DataFrame contenant les statistiques des recettes.
+        """
+        self.df_recipes_stats = df_recipes_stats
+
+    def reward_nb_ratings(self, nb_ratings, log_max):
+        """
+        Calcule une récompense pour le nombre de notes en utilisant une transformation logarithmique.
+
+        Parameters:
+        nb_ratings (int): Le nombre de notes pour une recette.
+        log_max (float): Le logarithme du nombre maximum de notes.
+
+        Returns:
+        float: La récompense calculée pour le nombre de notes.
+        """
+        return (np.log(nb_ratings) / log_max) * 5
+
+    def compute_score(self, poids_note):
+        """
+        Calcule le score pondéré pour chaque recette en fonction des notes moyennes et du nombre de notes.
+
+        Parameters:
+        poids_note (float): Le poids attribué aux notes moyennes.
+
+        Returns:
+        Series: Les nouveaux scores calculés pour chaque recette.
+        """
+        log_max = np.log(max(self.df_recipes_stats['nb_ratings']))
+        poids_nb_reviews = 1 - poids_note
+        self.df_recipes_stats['rewarded_nb_ratings'] = self.df_recipes_stats['nb_ratings'].apply(self.reward_nb_ratings, log_max=log_max)
+        self.df_recipes_stats['new_score'] = (
+            poids_note * self.df_recipes_stats['mean_rating'] + 
+            poids_nb_reviews * self.df_recipes_stats['rewarded_nb_ratings']
+        )
+        self.df_recipes_stats['new_score'] = (self.df_recipes_stats['new_score'] / np.max(self.df_recipes_stats['new_score'])) * 100
+        return self.df_recipes_stats['new_score']
+
+    def empirical_cdf(self, data):
+        """
+        Calcule la fonction de répartition empirique (CDF) pour un ensemble de données.
+
+        Parameters:
+        data (array-like): Les données pour lesquelles calculer la CDF.
+
+        Returns:
+        tuple: Les données triées et la CDF empirique correspondante.
+        """
+        sorted_data = np.sort(data)
+        cdf = np.arange(1, len(sorted_data) + 1) / len(sorted_data)
+        return sorted_data, cdf
+
+    def objective(self, poids_note):
+        """
+        Calcule l'erreur quadratique moyenne entre la CDF empirique des scores et la CDF théorique normale.
+
+        Parameters:
+        poids_note (float): Le poids attribué aux notes moyennes.
+
+        Returns:
+        float: L'erreur quadratique moyenne entre la CDF empirique et la CDF théorique.
+        """
+        scores = self.compute_score(poids_note)
+        sorted_scores, cdf_empirical = self.empirical_cdf(scores)
+        mu, std = norm.fit(scores)
+        cdf_theoretical = norm.cdf(sorted_scores, loc=mu, scale=std)
+        mse = np.mean((cdf_empirical - cdf_theoretical) ** 2)
+        return mse
+
+    def optimize_weights(self):
+        """
+        Optimise les poids pour minimiser l'erreur quadratique moyenne entre la CDF empirique et la CDF théorique.
+
+        Returns:
+        tuple: Les poids optimisés pour les notes moyennes et le nombre de notes.
+        """
+        bounds = [(0, 1)]
+        result = minimize(self.objective, x0=[0.5], bounds=bounds)
+        return result.x[0], 1 - result.x[0]
