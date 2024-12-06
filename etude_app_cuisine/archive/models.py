@@ -6,7 +6,6 @@ import numpy as np
 import spacy
 
 
-
 class Preprocessing:
     def __init__(self, df_raw_recipes):
         """
@@ -15,7 +14,6 @@ class Preprocessing:
         """
         self.df_raw_recipes = df_raw_recipes
         self.nlp = spacy.load("en_core_web_sm")
-
 
     def create_monthly_dico_ingredient(self, month: int):
         """
@@ -27,7 +25,7 @@ class Preprocessing:
         for year in range(2000, 2018):
             A = []
             X = self.df_raw_recipes[
-                (self.df_raw_recipes['submitted'].dt.year == year) & 
+                (self.df_raw_recipes['submitted'].dt.year == year) &
                 (self.df_raw_recipes['submitted'].dt.month == month)
             ].ingredients
             for index in range(X.shape[0]):
@@ -35,7 +33,7 @@ class Preprocessing:
             df['X_' + str(year)] = Counter(A)
             df['X_' + str(year)]['nbre_recipes'] = X.shape[0]
             df['X_' + str(year)]['nbre_ingredients'] = len(A)
-        
+
         Month_Ingredients = pd.DataFrame(df).T.fillna(0)
         return Month_Ingredients
 
@@ -49,7 +47,8 @@ class Preprocessing:
         df_ingredient_all = pd.DataFrame(df_ingredient.sum()).reset_index()
         df_ingredient_all.columns = ['ingredients', 'appearances']
         df_ingredient_all['freq'] = (
-            df_ingredient_all['appearances'] / df_ingredient.sum().loc['nbre_recipes'] * 100
+            df_ingredient_all['appearances'] /
+            df_ingredient.sum().loc['nbre_recipes'] * 100
         )
         return df_ingredient_all.sort_values(by='freq', ascending=False)
 
@@ -81,9 +80,10 @@ class Preprocessing:
                 'freq': df_ingredient_all[
                     df_ingredient_all['ingredient_tf'] == ingredient].freq.sum()
             }
-        Valuable_ingredient_shorted = pd.DataFrame(Valuable_ingredient_shorted).T.sort_values(by='freq', ascending=False)
+        Valuable_ingredient_shorted = pd.DataFrame(
+            Valuable_ingredient_shorted).T.sort_values(by='freq', ascending=False)
         return Valuable_ingredient_shorted[
-            (Valuable_ingredient_shorted['appearances'] < 1000) & 
+            (Valuable_ingredient_shorted['appearances'] < 1000) &
             (Valuable_ingredient_shorted['appearances'] > 1)
         ]
 
@@ -94,20 +94,21 @@ class Preprocessing:
         """
         Mapping_ingredients = {}
         for i in range(1, 13):
-            list_ingredient = self.create_monthly_dico_ingredient(i).columns.values
+            list_ingredient = self.create_monthly_dico_ingredient(
+                i).columns.values
             for x in list_ingredient:
                 token = self.plural_to_singular(str(self.nlp(x)).split()[-1])
                 if x not in Mapping_ingredients.keys():
                     Mapping_ingredients[x] = token
         return Mapping_ingredients
 
-    def tokenised_recipe(self, string ,mapping_ingredinent):
+    def tokenised_recipe(self, string, mapping_ingredinent):
         """
         Transforme une recette en une liste d'ingrédients tokenisés en utilisant le mapping des ingrédients.
         :param string: Texte de la recette.
         :return: Liste d'ingrédients tokenisés.
         """
-        
+
         L = []
         for x in Counter(string).keys():
             try:
@@ -115,8 +116,6 @@ class Preprocessing:
             except KeyError:
                 continue
         return L
-    
-
 
 
 class SeasonalityChecker:
@@ -127,7 +126,7 @@ class SeasonalityChecker:
         """
         self.dico_all_month_ingredient = dico_all_month_ingredient
         self.months = [
-            "January", "February", "March", "April", "May", "June", 
+            "January", "February", "March", "April", "May", "June",
             "July", "August", "September", "October", "November", "December"
         ]
 
@@ -169,13 +168,15 @@ class SeasonalityChecker:
 
         try:
             for month in range(1, 13):
-                ingredient_values.append(self.dico_all_month_ingredient[month].loc[ingredient].freq)
+                ingredient_values.append(
+                    self.dico_all_month_ingredient[month].loc[ingredient].freq)
 
             ingredient_values = np.array(ingredient_values)
             sigma_ingredient = np.var(ingredient_values)
 
             # Normalisation des valeurs
-            ingredient_values_norm = normalize(ingredient_values.reshape(12, 1), norm='max', axis=0)
+            ingredient_values_norm = normalize(
+                ingredient_values.reshape(12, 1), norm='max', axis=0)
             sigma_norm = np.var(ingredient_values_norm)
 
             return ingredient_values_norm, np.sqrt(sigma_norm)
@@ -183,11 +184,10 @@ class SeasonalityChecker:
             return f"Your ingredient '{ingredient}' does not exist in the database."
         except Exception as e:
             return f"An error occurred: {e}"
-        
-        
+
 
 class IngredientMatcher:
-    def __init__(self, df_recipes_tokenised,dico_all_month_ingredient):
+    def __init__(self, df_recipes_tokenised, dico_all_month_ingredient):
         """
         Initialise la classe avec un DataFrame contenant des recettes tokenisées.
         :param df_recipes_tokenised: DataFrame contenant les recettes avec des colonnes 'submitted' et 'ingredients'.
@@ -247,94 +247,92 @@ class IngredientMatcher:
 
         return match_recipes
 
-    
-    def ingredient_best_seasonal(self,ingredient):
-        best_season=0
-        c=0                                                     
-        for month in range(1,13):
+    def ingredient_best_seasonal(self, ingredient):
+        best_season = 0
+        c = 0
+        for month in range(1, 13):
             self.dico_all_month_ingredient[month].loc[ingredient].freq
             if c > self.dico_all_month_ingredient[month].loc[ingredient].freq:
                 continue
-            else :
-                c= self.dico_all_month_ingredient[month].loc[ingredient].freq
-                best_season=month
+            else:
+                c = self.dico_all_month_ingredient[month].loc[ingredient].freq
+                best_season = month
         if c == 0:
-            return('Your ingredient is not in our database')
-        else :
+            return ('Your ingredient is not in our database')
+        else:
             return best_season
-        
-    def ingredient_std(self,ingredient):
-        ingredient_values=[]
 
-        for i in range(1,13):
+    def ingredient_std(self, ingredient):
+        ingredient_values = []
+
+        for i in range(1, 13):
             if ingredient in self.dico_all_month_ingredient[i].index:
-                ingredient_values.append(self.dico_all_month_ingredient[i].loc[ingredient].freq)
+                ingredient_values.append(
+                    self.dico_all_month_ingredient[i].loc[ingredient].freq)
             else:
                 continue
-        
-        if len(ingredient_values) >0:
-            N=len(ingredient_values)
-            ingredient_values =  np.array(ingredient_values)
-            sigma_ingredient= np.var(ingredient_values)
-            
-            
-            ingredient_values_norm= normalize(ingredient_values.reshape(N,1), norm='max', axis=0)
-            sigma_norm = np.var(ingredient_values_norm) 
 
-            
-            return ingredient_values_norm,[np.sqrt(sigma_norm.reshape(-1).item()),N]
+        if len(ingredient_values) > 0:
+            N = len(ingredient_values)
+            ingredient_values = np.array(ingredient_values)
+            sigma_ingredient = np.var(ingredient_values)
+
+            ingredient_values_norm = normalize(
+                ingredient_values.reshape(N, 1), norm='max', axis=0)
+            sigma_norm = np.var(ingredient_values_norm)
+
+            return ingredient_values_norm, [np.sqrt(sigma_norm.reshape(-1).item()), N]
         else:
-            return 0,0
-        
-    
-    def seasonal_recommendations(self,ingredient,n):
+            return 0, 0
+
+    def seasonal_recommendations(self, ingredient, n):
         threshold = 0.1
         season = self.ingredient_best_seasonal(ingredient)
-        list_ingredients_match = list(self.ingredient_match(ingredient,season).keys())
-        list_valuable_match =[]
-        c=0
-        
+        list_ingredients_match = list(
+            self.ingredient_match(ingredient, season).keys())
+        list_valuable_match = []
+        c = 0
+
         # Filtrer la liste pour récupérer les n ingrédient avec la plus grande variance
         while c < n:
             match = list_ingredients_match[c]
             std_result = self.ingredient_std(match)
-            if std_result[1][1] < 12 :
+            if std_result[1][1] < 12:
                 list_valuable_match.append(match)
-                
+
             elif std_result[1][0] > threshold:
                 list_valuable_match.append(match)
-            
-            c+=1
-        
-        return self.recipes_filter_by_ingredients(list_valuable_match,season) 
-    
-    
+
+            c += 1
+
+        return self.recipes_filter_by_ingredients(list_valuable_match, season)
+
     def seasonal_recommendations_1(self, ingredient, n):
         threshold = 0.1
         season = self.ingredient_best_seasonal(ingredient)
-        list_ingredients_match = list(self.ingredient_match(ingredient, season).keys())
+        list_ingredients_match = list(
+            self.ingredient_match(ingredient, season).keys())
         list_valuable_match = []
         c = 0
 
         while c < n:
             match = list_ingredients_match[c]
-            
+
             # Obtenir les valeurs renvoyées par ingredient_std(match)
             std_result = self.ingredient_std(match)
-            
+
             # Vérification et accès correct des éléments
             if isinstance(std_result[1], (list, tuple)) and len(std_result[1]) > 1:
                 value = std_result[1][1]
             else:
                 value = std_result[1]  # Si c'est un entier directement
-            
-          
+
             # Comparaison avec 12
             if value < 12:
                 list_valuable_match.append(match)
             elif std_result[1][0] > threshold:
                 list_valuable_match.append(match)
-            
+
             c += 1
 
         return self.recipes_filter_by_ingredients(list_valuable_match, season)
