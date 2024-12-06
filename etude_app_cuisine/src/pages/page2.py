@@ -8,6 +8,7 @@ import importlib
 script_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(script_dir)
 parent_dir = os.path.abspath(os.path.join(script_dir, os.pardir))
+sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
 import models
 

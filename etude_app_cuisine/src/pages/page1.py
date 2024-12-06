@@ -22,6 +22,8 @@ parent_dir = os.path.abspath(os.path.join(script_dir, os.pardir))
 
 # Aller dans le répertoire "data" depuis le parent
 sys.path.append(script_dir)
+sys.path.append(os.path.dirname(os.path.dirname(__file__)))
+
 import models
 
 importlib.reload(models)
