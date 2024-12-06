@@ -73,7 +73,7 @@ selected_month = st.slider("Sélectionnez le mois", 1, 12)
 # Limiter l'entrée pour qu'elle soit entre 1 et la taille maximale de la liste d'ingrédients pour le mois sélectionné
 max_ingredients = len(dico_all_month_ingredient[selected_month]) - 2
 top = st.number_input("Nombre d'ingrédients à afficher",
-                      min_value=1, max_value=max_ingredients, value=20)
+                      min_value=2, max_value=max_ingredients, value=20)
 
 # Affichage de l'histogramme pour le mois sélectionné en conservant l'ordre des ingrédients
 df_selected_month = dico_all_month_ingredient[selected_month]
