@@ -34,6 +34,16 @@ jobs:
           poetry show     # Optional: List installed dependencies
           poetry run python --version
 
+      - name: Run Linting with Black
+        working-directory: etude_app_cuisine
+        continue-on-error: true
+        run: poetry run black --check .
+
+      - name: Run Linting with Flake8
+        working-directory: etude_app_cuisine
+        continue-on-error: true
+        run: poetry run flake8 .
+
       - name: Generate Data
         working-directory: etude_app_cuisine/src
         run: poetry run python LoadData.py  
