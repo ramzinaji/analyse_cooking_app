@@ -37,11 +37,6 @@ jobs:
       - name: Run Linting with Black
         working-directory: etude_app_cuisine
         continue-on-error: true
-        run: poetry run black --check src tests
-
-      - name: Auto-format with Black (Optional Fix)
-        if: failure()
-        working-directory: etude_app_cuisine
         run: poetry run black src tests
 
       - name: Run Linting with Flake8
