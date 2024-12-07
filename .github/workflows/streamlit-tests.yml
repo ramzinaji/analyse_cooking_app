@@ -37,12 +37,12 @@ jobs:
       - name: Run Linting with Black
         working-directory: etude_app_cuisine
         continue-on-error: true
-        run: poetry run black --check .
+        run: poetry run black --check src tests
 
       - name: Run Linting with Flake8
         working-directory: etude_app_cuisine
         continue-on-error: true
-        run: poetry run flake8 .
+        run: poetry run flake8 src tests
 
       - name: Generate Data
         working-directory: etude_app_cuisine/src
