@@ -159,10 +159,10 @@ ax.set_title('CDF des notes moyennes des recettes vs. loi normale')
 ax.legend()
 plt.tight_layout()
 st.pyplot(fig)
-st.write(
-    f"Paramètres de la distribution normale ajustée: mu = {
-        mu:.2f}, std = {
-            std:.2f}")
+st.write(f"""
+Paramètres de la distribution normale ajustée:
+mu = {mu:.2f}, std = {std:.2f}
+""")
 
 ###########################################
 # ETUDE DU NOMBRE DE REVIEWS
