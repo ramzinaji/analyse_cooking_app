@@ -71,16 +71,18 @@ streamlit run app_v3.py
 
 The app will be available at http://localhost:8501 in your browser.
 
-### **5. Logs 📝**  
-Logs for the application are automatically generated and stored in the logs/ directory.
+### **5. Logs** 📝  
+Logs for the application are automatically generated and stored in the **`logs/`** directory.  
 These logs include:
 
--Application initialization messages
--Errors or warnings during data processing
--User interactions
+- **Application initialization messages**  
+- **Errors or warnings during data processing**  
+- **User interactions**  
 
-### **Contributors 👥**  
--ADIL Nawfal
--ESKINAZI Etienne
--MALAININE Mohamed Limame
--NAJI Ramzi
+---
+
+### **Contributors** 👥  
+- **ADIL Nawfal**  
+- **ESKINAZI Etienne**  
+- **MALAININE Mohamed Limame**  
+- **NAJI Ramzi**  
