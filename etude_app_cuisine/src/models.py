@@ -402,7 +402,7 @@ class IngredientMatcher:
             return std_result[1][0]
 
 
-#Classes scoring
+# Classes scoring
 
 class RecipeScorer:
     def __init__(self, df_recipes_stats):
