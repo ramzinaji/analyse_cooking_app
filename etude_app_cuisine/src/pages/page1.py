@@ -213,9 +213,9 @@ loc = {loc:.2f}, lambda = {1 / scale:.2f}
 # CONCLUSION
 st.subheader("3) Conclusion sur l'analyse des variables")
 st.markdown(
-    """- **Variable 'Moyenne des notes des recettes'** : plus de 40% des notes moyennes sont égales à 5 → 
+    """- **Variable 'Moyenne des notes des recettes'** : plus de 40% des notes moyennes sont égales à 5 →
 la variable note ne permet pas de discriminer les recettes.
-- **Variable 'Nombre de reviews des recettes'** : le nombre de reviews par recette décroît de façon quasi exponentielle 
+- **Variable 'Nombre de reviews des recettes'** : le nombre de reviews par recette décroît de façon quasi exponentielle
 → bon facteur de discrimination."""
 )
 
@@ -226,19 +226,19 @@ la variable note ne permet pas de discriminer les recettes.
 # 1) Création du nouveau score
 st.subheader("4) Nouvelle méthode de scoring basée sur la popularité")
 st.markdown(
-    """- On décide de créer une nouvelle notation qui prend en compte à la fois les notes des utilisateurs 
+    """- On décide de créer une nouvelle notation qui prend en compte à la fois les notes des utilisateurs
 et le nombre de reviews donné par recettes.
-- On transforme la variable "nombre de reviews" en note sur 5 grâce à une transformation logarithmique. 
-Le logarithme réduit l'impact des valeurs extrêmes, évitant de survaloriser les recettes avec un très grand nombre 
+- On transforme la variable "nombre de reviews" en note sur 5 grâce à une transformation logarithmique.
+Le logarithme réduit l'impact des valeurs extrêmes, évitant de survaloriser les recettes avec un très grand nombre
 de reviews par rapport à celles avec un nombre modéré.
-- Cette transformation reflète mieux notre jeu de données : une augmentation de 1 à 10 reviews est plus significative 
+- Cette transformation reflète mieux notre jeu de données : une augmentation de 1 à 10 reviews est plus significative
 qu'une augmentation de 100 à 110.
 - Ce choix est pertinent car beaucoup de recettes ont seulement 1 avis, ce qui ne les récompense pas (log(1) = 0).
-- Chaque recette obtient deux notes attribuant des points entre 0 et 5. On effectue une moyenne pondérée de ces deux notes 
-selon l’importance donnée à la note des utilisateurs.
+- Chaque recette obtient deux notes attribuant des points entre 0 et 5. On effectue une moyenne pondérée de ces deux
+notes selon l’importance donnée à la note des utilisateurs.
 - Enfin, on rééchelonne cette note sur 100 pour obtenir une meilleure dispersion des notes.
-- On cherche à obtenir un score dont la distribution suit une loi normale afin de garantir que la majorité des recettes 
-ait des scores intermédiaires. De plus, en visant une distribution normale, on contraint les scores à mieux discriminer 
+- On cherche à obtenir un score dont la distribution suit une loi normale afin de garantir que la majorité des recettes
+ait des scores intermédiaires. De plus, en visant une distribution normale, on contraint les scores à mieux discriminer
 les recettes car les valeurs extrêmes sont en minorité."""
 )
 
@@ -296,13 +296,13 @@ plt.legend()
 plt.grid(True)
 plt.tight_layout()
 st.pyplot(fig)
-st.write(f"""Paramètres de la distribution normale ajustée: 
-μ = {mu:.2f}, 
+st.write(f"""Paramètres de la distribution normale ajustée:
+μ = {mu:.2f},
 σ = {std:.2f}""")
 
 # Calcul du MSE actuel
 mse_current = scorer.objective(poids_note)
-st.write(f"""Erreur quadratique moyenne (MSE) avec la loi normale : 
+st.write(f"""Erreur quadratique moyenne (MSE) avec la loi normale :
 {mse_current:.5f}""")
 
 ###########################################
@@ -311,10 +311,10 @@ st.write(f"""Erreur quadratique moyenne (MSE) avec la loi normale :
 
 st.subheader("5) Recherche des poids optimaux")
 st.markdown(
-    """On a cherché à déterminer avec précision les paramètres de poids permettant d'obtenir une variable de scoring 
-dont la distribution soit la plus proche possible d'une loi normale.  
-Pour cela, nous avons minimisé une fonction de coût définie comme la somme des écarts quadratiques entre la fonction 
-de répartition (CDF) de notre feature et celle de la loi normale associée.  
+    """On a cherché à déterminer avec précision les paramètres de poids permettant d'obtenir une variable de scoring
+dont la distribution soit la plus proche possible d'une loi normale.
+Pour cela, nous avons minimisé une fonction de coût définie comme la somme des écarts quadratiques entre la fonction
+de répartition (CDF) de notre feature et celle de la loi normale associée.
 Les résultats sont présentés ci-dessous."""
 )
 
@@ -328,7 +328,7 @@ st.write(f"Poids du nombre de reviews : {optimal_poids_nb_reviews:.2f}")
 
 # MSE pour les scores optimaux
 mse_optimal = scorer.objective(optimal_poids_note)
-st.write(f"""Erreur quadratique moyenne (MSE) pour les scores optimaux : 
+st.write(f"""Erreur quadratique moyenne (MSE) pour les scores optimaux :
 {mse_optimal:.5f}""")
 
 # Calcul des scores avec les poids optimaux
@@ -376,10 +376,10 @@ st.pyplot(fig)
 # CONCLUSION
 st.subheader("6) Conclusion sur la nouvelle méthode de scoring")
 st.markdown(
-    """- On est parvenu à créer une nouvelle feature permettant de mieux évaluer les recettes en prenant en compte à 
-la fois la qualité perçue par les utilisateurs (la note) et la popularité auprès de ces derniers (le nombre de reviews).  
-- Le nouveau score permet de mieux discriminer les recettes grâce à une distribution proche d'une loi normale.  
-- Il reste tout de même certaines recettes qu'on ne parvient pas à discriminer, notamment celles avec une seule review 
+    """- On est parvenu à créer une nouvelle feature permettant de mieux évaluer les recettes en prenant en compte à
+la fois la qualité perçue par les utilisateurs (la note) et la popularité auprès de ces derniers (le nombre de reviews).
+- Le nouveau score permet de mieux discriminer les recettes grâce à une distribution proche d'une loi normale.
+- Il reste tout de même certaines recettes qu'on ne parvient pas à discriminer, notamment celles avec une seule review
 et une note moyenne égale à 5 (donc une seule note égale à 5)."""
 )
 
@@ -402,7 +402,8 @@ def display_top_n_recipes(df_recipes_stats, df_RAW_recipes, df_RAW_interactions,
     return_interactions (bool): Si True, renvoie également les interactions associées. Par défaut, False.
 
     Returns:
-    list: Une liste de DataFrames contenant les statistiques des recettes, les descriptions et les interactions associées.
+    list: Une liste de DataFrames contenant les statistiques des recettes, les descriptions et les interactions
+    associées.
     """
 
     # Trouver les top_n recettes basées sur 'optimal_score'
