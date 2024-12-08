@@ -206,11 +206,11 @@ plt.tight_layout()
 st.pyplot(fig)
 
 # Afficher les paramètres de la distribution exponentielle ajustée
-st.write(
-    f"Paramètres de la distribution exponentielle ajustée: loc = {
-        loc:.2f}, lambda = {
-            1 /
-        scale:.2f}")
+st.write(f"""
+Paramètres de la distribution exponentielle ajustée:
+loc = {loc:.2f}, lambda = {1 / scale:.2f}
+""")
+
 
 # CONCLUSION
 st.subheader("3) Conclusion sur l'analyse des variables")
