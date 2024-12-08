@@ -1,3 +1,4 @@
+import models
 import streamlit as st
 import pandas as pd
 import altair as alt
@@ -14,7 +15,6 @@ sys.path.append(script_dir)
 parent_dir = os.path.abspath(os.path.join(script_dir, os.pardir))
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
-import models
 importlib.reload(models)
 
 print(f"Debug: IngredientMatcher exists: {models.IngredientMatcher}")
@@ -32,6 +32,8 @@ chemin_recipes_stats = os.path.join(data_dir, 'df_recipes_stats.json')
 chemin_recipes_tokenised = os.path.join(data_dir, 'df_recipes_tokenised.json')
 
 # Chargement des données pour chaque mois
+
+
 @st.cache_data
 def load_monthly_ingredient_data(chemin):
     dico_all_month_ingredient = {}
@@ -43,6 +45,8 @@ def load_monthly_ingredient_data(chemin):
     return dico_all_month_ingredient
 
 # Préparation des données avec les ingrédients en index
+
+
 @st.cache_data
 def prepare_ingredient_data(dico_all_month_ingredient):
     dico_all_month_ingredient_test = {}
@@ -54,6 +58,8 @@ def prepare_ingredient_data(dico_all_month_ingredient):
     return dico_all_month_ingredient_test
 
 # Charger les données des recettes tokenisées
+
+
 @st.cache_data
 def load_recipes_tokenised(chemin_recipes_tokenised):
     df = pd.read_json(chemin_recipes_tokenised, orient="records")
@@ -61,29 +67,40 @@ def load_recipes_tokenised(chemin_recipes_tokenised):
     return df
 
 # Initialisation des classes
+
+
 @st.cache_resource
 def initialize_classes(df_recipes_tokenised, dico_all_month_ingredient_test):
-    matcher = models.IngredientMatcher(df_recipes_tokenised, dico_all_month_ingredient_test)
+    matcher = models.IngredientMatcher(
+        df_recipes_tokenised,
+        dico_all_month_ingredient_test)
     season_checker = models.SeasonalityChecker(dico_all_month_ingredient_test)
     return matcher, season_checker
 
+
 # Charger et préparer les données
 dico_all_month_ingredient = load_monthly_ingredient_data(chemin)
-dico_all_month_ingredient_test = prepare_ingredient_data(dico_all_month_ingredient)
+dico_all_month_ingredient_test = prepare_ingredient_data(
+    dico_all_month_ingredient)
 df_recipes_tokenised = load_recipes_tokenised(chemin_recipes_tokenised)
 
-matcher, season_checker = initialize_classes(df_recipes_tokenised, dico_all_month_ingredient_test)
+matcher, season_checker = initialize_classes(
+    df_recipes_tokenised, dico_all_month_ingredient_test)
 
 print(f"Debug: matcher instance created: {matcher}")
 print(f"Debug: season_checker instance created: {season_checker}")
 
 # Charger et indexer les données supplémentaires
+
+
 @st.cache_data
-def load_data(chemin_raw_recipes, chemin_raw_interactions, chemin_recipes_stats):
+def load_data(chemin_raw_recipes, chemin_raw_interactions,
+              chemin_recipes_stats):
     df_RAW_recipes = pd.read_json(chemin_raw_recipes, lines=True)
     df_RAW_interactions = pd.read_json(chemin_raw_interactions, lines=True)
     df_recipes_stats = pd.read_json(chemin_recipes_stats, lines=True)
     return df_RAW_recipes, df_RAW_interactions, df_recipes_stats
+
 
 @st.cache_data
 def index_dataframes(df_recipes_stats, df_RAW_recipes):
@@ -91,9 +108,11 @@ def index_dataframes(df_recipes_stats, df_RAW_recipes):
     df_RAW_recipes = df_RAW_recipes.set_index('id')
     return df_recipes_stats, df_RAW_recipes
 
+
 @st.cache_resource
 def initialize_scorer(df_recipes_stats):
     return RecipeScorer(df_recipes_stats)
+
 
 # Charger les données
 df_RAW_recipes, df_RAW_interactions, df_recipes_stats = load_data(
@@ -101,7 +120,8 @@ df_RAW_recipes, df_RAW_interactions, df_recipes_stats = load_data(
 )
 
 # Indexer les DataFrames
-df_recipes_stats, df_RAW_recipes = index_dataframes(df_recipes_stats, df_RAW_recipes)
+df_recipes_stats, df_RAW_recipes = index_dataframes(
+    df_recipes_stats, df_RAW_recipes)
 
 # Initialisation de la classe RecipeScorer
 scorer = initialize_scorer(df_recipes_stats)
@@ -116,8 +136,10 @@ st.title("Analyse de la fréquence des ingrédients par mois")
 selected_month = st.slider("Sélectionnez le mois", 1, 12)
 
 # Entrer le nombre d'ingrédients à afficher
-# Limiter l'entrée pour qu'elle soit entre 1 et la taille maximale de la liste d'ingrédients pour le mois sélectionné
-max_ingredients = max(len(dico_all_month_ingredient[selected_month]), 3) - 2  # Assure que max_ingredients >=1
+# Limiter l'entrée pour qu'elle soit entre 1 et la taille maximale de la
+# liste d'ingrédients pour le mois sélectionné
+# Assure que max_ingredients >=1
+max_ingredients = max(len(dico_all_month_ingredient[selected_month]), 3) - 2
 top = st.number_input(
     "Nombre d'ingrédients à afficher",
     min_value=1,
@@ -125,16 +147,19 @@ top = st.number_input(
     value=min(20, max_ingredients)
 )
 
-# Affichage de l'histogramme pour le mois sélectionné en conservant l'ordre des ingrédients
+# Affichage de l'histogramme pour le mois sélectionné en conservant
+# l'ordre des ingrédients
 df_selected_month = dico_all_month_ingredient[selected_month].copy()
 
-df_selected_month['score'] = df_selected_month['ingredients'].apply(matcher.ingredient_score)
+df_selected_month['score'] = df_selected_month['ingredients'].apply(
+    matcher.ingredient_score)
 df_selected_month = df_selected_month[df_selected_month['score'] > threshold]
 df_selected_month = df_selected_month.iloc[:top]
 
 # Création de l'histogramme avec Altair
 chart = alt.Chart(df_selected_month).mark_bar().encode(
-    x=alt.X('ingredients', sort=None),  # Conserve l'ordre d'origine des ingrédients
+    # Conserve l'ordre d'origine des ingrédients
+    x=alt.X('ingredients', sort=None),
     y='freq',
     tooltip=['ingredients', 'freq']
 ).properties(
@@ -150,7 +175,9 @@ st.altair_chart(chart, use_container_width=True)
 
 st.title("Votre ingrédient est-il de saison ?")
 
-user_ingredient = st.text_input("Entrez votre ingrédient (en anglais) :", value="pumpkin")
+user_ingredient = st.text_input(
+    "Entrez votre ingrédient (en anglais) :",
+    value="pumpkin")
 
 # Validation des données et bouton
 if st.button("Vérifier meilleure saison"):
@@ -172,7 +199,9 @@ if st.button("Vérifier meilleure saison"):
 st.title("Vous ne savez pas quoi cuisiner ? Trouvons la meilleure recette de saison qui vous correspond !")
 
 # Entrée utilisateur
-user_seasonal_ingredient = st.text_input("Entrez votre ingrédient de saison (en anglais):", value="pumpkin")
+user_seasonal_ingredient = st.text_input(
+    "Entrez votre ingrédient de saison (en anglais):",
+    value="pumpkin")
 n_best_fit_ingredient = st.number_input(
     "Combien d'autres ingrédients de saison voulez-vous ?",
     min_value=1,
@@ -185,6 +214,8 @@ ingredient = str(user_seasonal_ingredient.strip())
 N = int(n_best_fit_ingredient)
 
 # Fonction pour optimiser les poids et calculer les scores optimaux
+
+
 @st.cache_data
 def get_optimal_scores(_scorer, df_recipes_stats):
     """
@@ -203,7 +234,10 @@ def get_optimal_scores(_scorer, df_recipes_stats):
     return df_stats
 
 # Définition de la fonction pour afficher les recettes
-def display_top_n_recipes(df_recipes_stats, df_RAW_recipes, df_RAW_interactions, n=5, return_description=False, return_interactions=False, filter_recipe_names=None):
+
+
+def display_top_n_recipes(df_recipes_stats, df_RAW_recipes, df_RAW_interactions, n=5,
+                          return_description=False, return_interactions=False, filter_recipe_names=None):
     """
     Affiche les n meilleures recettes selon le score optimal et renvoie les données associées.
 
@@ -221,7 +255,8 @@ def display_top_n_recipes(df_recipes_stats, df_RAW_recipes, df_RAW_interactions,
     """
     # Filtrer les recettes par nom si filter_recipe_names est fourni
     if filter_recipe_names:
-        filtered_ids = df_RAW_recipes[df_RAW_recipes['name'].isin(filter_recipe_names)].index
+        filtered_ids = df_RAW_recipes[df_RAW_recipes['name'].isin(
+            filter_recipe_names)].index
         df_recipes_stats_filtered = df_recipes_stats.loc[filtered_ids]
     else:
         df_recipes_stats_filtered = df_recipes_stats
@@ -245,15 +280,19 @@ def display_top_n_recipes(df_recipes_stats, df_RAW_recipes, df_RAW_interactions,
         # Afficher les interactions de la recette
         if return_interactions:
             st.write("**Interactions de la recette:**")
-            interactions = df_RAW_interactions[df_RAW_interactions['recipe_id'] == recipe_id].copy()
-            interactions['date'] = pd.to_datetime(interactions['date']).dt.strftime('%Y-%m-%d')
-            interactions = interactions.set_index('recipe_id').sort_values(by='date', ascending=False)
+            interactions = df_RAW_interactions[df_RAW_interactions['recipe_id'] == recipe_id].copy(
+            )
+            interactions['date'] = pd.to_datetime(
+                interactions['date']).dt.strftime('%Y-%m-%d')
+            interactions = interactions.set_index(
+                'recipe_id').sort_values(by='date', ascending=False)
             st.write(interactions)
+
 
 # Vérification si l'utilisateur a saisi un ingrédient
 if user_seasonal_ingredient:
     # Recherche des ingrédients et des recettes
-    #seasonal_month = int(matcher.ingredient_best_seasonal(ingredient))
+    # seasonal_month = int(matcher.ingredient_best_seasonal(ingredient))
 
     result_N_match = matcher.seasonal_recommendations_1(ingredient, N)[1]
     result_recipes = matcher.seasonal_recommendations_1(ingredient, N)[0]
@@ -262,7 +301,8 @@ if user_seasonal_ingredient:
     st.table(pd.DataFrame(result_N_match, columns=["Ingrédients"]))
 
     st.subheader("Recettes recommandées :")
-    recommended_recipes = df_recipes_tokenised.loc[result_recipes, 'name'].reset_index(drop=True)
+    recommended_recipes = df_recipes_tokenised.loc[result_recipes, 'name'].reset_index(
+        drop=True)
     st.write(recommended_recipes)
 
     # Optimiser les poids et calculer les scores optimaux avec cache
@@ -272,11 +312,17 @@ if user_seasonal_ingredient:
     st.subheader("Affichage des meilleures recettes selon leur score optimal")
 
     # Choix du nombre de recettes à afficher
-    n = st.slider("Nombre de recettes à afficher", min_value=1, max_value=10, value=3)
+    n = st.slider(
+        "Nombre de recettes à afficher",
+        min_value=1,
+        max_value=10,
+        value=3)
 
     # Choix de ce que l'utilisateur veut afficher
-    return_description = st.checkbox("Afficher la description des recettes", value=True)
-    return_interactions = st.checkbox("Afficher les interactions des recettes", value=False)
+    return_description = st.checkbox(
+        "Afficher la description des recettes", value=True)
+    return_interactions = st.checkbox(
+        "Afficher les interactions des recettes", value=False)
 
     # Filtrer les noms des recettes
     recipe_names = recommended_recipes.tolist()
@@ -293,4 +339,5 @@ if user_seasonal_ingredient:
     )
 
 else:
-    st.warning("Veuillez entrer un ingrédient de saison pour obtenir des recommandations.")
+    st.warning(
+        "Veuillez entrer un ingrédient de saison pour obtenir des recommandations.")

@@ -1,5 +1,5 @@
 import pytest
-from models import IngredientMatcher  
+from models import IngredientMatcher
 import pandas as pd
 
 
@@ -34,8 +34,10 @@ def test_ingredient_match(ingredient_matcher):
 
 
 def test_check_elements_in_list(ingredient_matcher):
-    assert ingredient_matcher.check_elements_in_list(["tomato"], ["tomato", "onion"]) is True
-    assert ingredient_matcher.check_elements_in_list(["pepper"], ["tomato", "onion"]) is False
+    assert ingredient_matcher.check_elements_in_list(
+        ["tomato"], ["tomato", "onion"]) is True
+    assert ingredient_matcher.check_elements_in_list(
+        ["pepper"], ["tomato", "onion"]) is False
 
 
 def test_recipes_filter_by_ingredients(ingredient_matcher):

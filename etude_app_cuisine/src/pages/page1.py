@@ -1,3 +1,4 @@
+import models
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -18,7 +19,6 @@ parent_dir = os.path.abspath(os.path.join(script_dir, os.pardir))
 sys.path.append(script_dir)
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
-import models
 importlib.reload(models)
 
 print(f"Debug: RecipeScorer exists: {models.RecipeScorer}")
@@ -32,6 +32,7 @@ chemin_recipes_stats = os.path.join(data_dir, 'df_recipes_stats.json')
 
 print(chemin_raw_interactions, chemin_raw_recipes, chemin_recipes_stats)
 
+
 @st.cache_data
 def load_data():
     """Charge les données JSON nécessaires."""
@@ -40,12 +41,14 @@ def load_data():
     df_recipes_stats = pd.read_json(chemin_recipes_stats, lines=True)
     return df_RAW_recipes, df_RAW_interactions, df_recipes_stats
 
+
 @st.cache_data
 def index_dataframes(df_recipes_stats, df_RAW_recipes):
     """Indexe les DataFrames pour des accès plus rapides."""
     df_recipes_stats = df_recipes_stats.set_index('recipe_id')
     df_RAW_recipes = df_RAW_recipes.set_index('id')
     return df_recipes_stats, df_RAW_recipes
+
 
 @st.cache_resource
 def initialize_scorer(df_recipes_stats):
@@ -56,9 +59,11 @@ def initialize_scorer(df_recipes_stats):
 # INITIALISATION
 ###########################################
 
+
 # Charger et indexer les données
 df_RAW_recipes, df_RAW_interactions, df_recipes_stats = load_data()
-df_recipes_stats, df_RAW_recipes = index_dataframes(df_recipes_stats, df_RAW_recipes)
+df_recipes_stats, df_RAW_recipes = index_dataframes(
+    df_recipes_stats, df_RAW_recipes)
 
 # Initialisation de la classe RecipeScorer
 scorer = initialize_scorer(df_recipes_stats)
@@ -74,9 +79,18 @@ st.subheader("1) Etude des notes moyennes des recettes")
 
 # 1) Histogramme de la distribution des moyennes des notes
 st.markdown("#### Histogramme des moyennes des notes")
-bins = st.slider("Nombre de bins", min_value=10, max_value=50, value=20, step=5)
+bins = st.slider(
+    "Nombre de bins",
+    min_value=10,
+    max_value=50,
+    value=20,
+    step=5)
 fig, ax = plt.subplots(figsize=(10, 6))
-ax.hist(df_recipes_stats['mean_rating'], bins=bins, edgecolor='black', alpha=0.7)
+ax.hist(
+    df_recipes_stats['mean_rating'],
+    bins=bins,
+    edgecolor='black',
+    alpha=0.7)
 ax.set_xlabel('Moyenne des notes')
 ax.set_ylabel('Fréquence')
 ax.set_title('Distribution des notes moyennes des recettes')
@@ -132,7 +146,12 @@ cdf_norm = stats.norm.cdf(x, mu, std)
 
 # Graph
 fig, ax = plt.subplots(figsize=(10, 6))
-ax.plot(sorted_scores, cdf, marker='.', linestyle='none', label='CDF des scores')
+ax.plot(
+    sorted_scores,
+    cdf,
+    marker='.',
+    linestyle='none',
+    label='CDF des scores')
 ax.plot(x, cdf_norm, 'r-', lw=2, label='CDF loi normale')
 ax.set_xlabel('Note')
 ax.set_ylabel('Fréquence cumulée')
@@ -140,7 +159,10 @@ ax.set_title('CDF des notes moyennes des recettes vs. loi normale')
 ax.legend()
 plt.tight_layout()
 st.pyplot(fig)
-st.write(f"Paramètres de la distribution normale ajustée: mu = {mu:.2f}, std = {std:.2f}")
+st.write(
+    f"Paramètres de la distribution normale ajustée: mu = {
+        mu:.2f}, std = {
+            std:.2f}")
 
 ###########################################
 # ETUDE DU NOMBRE DE REVIEWS
@@ -148,7 +170,11 @@ st.write(f"Paramètres de la distribution normale ajustée: mu = {mu:.2f}, std =
 
 st.subheader("2) Etude du nombre de reviews des recettes")
 st.markdown("#### Histogramme du nombre de reviews")
-max_nb_ratings = st.slider("Nombre max. de reviews par recette à afficher", 10, 100, 30)
+max_nb_ratings = st.slider(
+    "Nombre max. de reviews par recette à afficher",
+    10,
+    100,
+    30)
 
 # Histogramme de la distribution des avis
 sub_nb_ratings = df_recipes_stats['nb_ratings'][df_recipes_stats['nb_ratings'] <= max_nb_ratings]
@@ -160,20 +186,33 @@ pdf_expon = stats.expon.pdf(x, loc, scale)
 
 # Graph
 fig, ax = plt.subplots(figsize=(10, 6))
-ax.hist(sub_nb_ratings, bins=range(0, max_nb_ratings + 2), edgecolor='black', align='left', density=True)
+ax.hist(
+    sub_nb_ratings,
+    bins=range(
+        0,
+        max_nb_ratings +
+        2),
+    edgecolor='black',
+    align='left',
+    density=True)
 ax.plot(x, pdf_expon, 'r-', lw=2, label='PDF loi exponentielle')
 ax.set_xlabel("Nombre de reviews par recette")
 ax.set_ylabel("Fréquence")
-ax.set_title("Distribution du nombre de reviews par recette vs. loi exponentielle")
+ax.set_title(
+    "Distribution du nombre de reviews par recette vs. loi exponentielle")
 ax.legend()
 ax.grid(True)
 plt.tight_layout()
 st.pyplot(fig)
 
 # Afficher les paramètres de la distribution exponentielle ajustée
-st.write(f"Paramètres de la distribution exponentielle ajustée: loc = {loc:.2f}, lambda = {1/scale:.2f}")
+st.write(
+    f"Paramètres de la distribution exponentielle ajustée: loc = {
+        loc:.2f}, lambda = {
+            1 /
+        scale:.2f}")
 
-# CONCLUSION 
+# CONCLUSION
 st.subheader("3) Conclusion sur l'analyse des variables")
 st.markdown("""
 - **Variable 'Moyenne des notes des recettes'** : plus de 40% des notes moyennes sont égales à 5 --> la variable note ne permet pas de discriminer les recettes.
@@ -187,11 +226,11 @@ st.markdown("""
 # 1) Création du nouveau score
 st.subheader("4) Nouvelle méthode de scoring basée sur la popularité")
 st.markdown("""
-- On décide de créer une nouvelle notation qui prend en compte à la fois les notes des utilisateurs et le nombre de reviews donné par recettes.  
-- On transforme la variable "nombre de reviews" en note sur 5 grâce à une transformation logarithmique. Le logarithme réduit l'impact des valeurs extrêmes, évitant de survaloriser les recettes avec un très grand nombre de reviews par rapport à celles avec un nombre modéré.  
-- Cette transformation reflète mieux notre jeu de données: une augmentation de 1 à 10 reviews est plus significative qu'une augmentation de 100 à 110.  
-- Ce choix est pertinent car beaucoup de recettes ont seulement 1 avis, ce qui ne les récompense pas (log(1) = 0).  
-- Chaque recette obtient deux notes attribuant des points entre 0 et 5. On effectue une moyenne pondérée de ces deux notes selon l’importance donnée à la note des utilisateurs.  
+- On décide de créer une nouvelle notation qui prend en compte à la fois les notes des utilisateurs et le nombre de reviews donné par recettes.
+- On transforme la variable "nombre de reviews" en note sur 5 grâce à une transformation logarithmique. Le logarithme réduit l'impact des valeurs extrêmes, évitant de survaloriser les recettes avec un très grand nombre de reviews par rapport à celles avec un nombre modéré.
+- Cette transformation reflète mieux notre jeu de données: une augmentation de 1 à 10 reviews est plus significative qu'une augmentation de 100 à 110.
+- Ce choix est pertinent car beaucoup de recettes ont seulement 1 avis, ce qui ne les récompense pas (log(1) = 0).
+- Chaque recette obtient deux notes attribuant des points entre 0 et 5. On effectue une moyenne pondérée de ces deux notes selon l’importance donnée à la note des utilisateurs.
 - Enfin, on rééchelonne cette note sur 100 pour obtenir une meilleure dispersion des notes.
 - On cherche à obtenir un score dont la distribution suit une loi normale afin de garantir que la majorité des recettes ait des scores intermédiaires. De plus, en visant une distribution normale, on contraint les scores à mieux discriminer les recettes car les valeurs extrêmes sont en minorité.
 """)
@@ -214,7 +253,12 @@ fig, ax = plt.subplots(figsize=(10, 6))
 mu, std = stats.norm.fit(df_recipes_stats['new_score'])
 x = np.linspace(0, 100, 100)
 pdf_norm = stats.norm.pdf(x, mu, std)
-ax.hist(df_recipes_stats['new_score'], bins=20, density=True, edgecolor='black', alpha=0.6)
+ax.hist(
+    df_recipes_stats['new_score'],
+    bins=20,
+    density=True,
+    edgecolor='black',
+    alpha=0.6)
 ax.plot(x, pdf_norm, 'r-', lw=2, label='PDF loi normale')
 ax.set_xlabel("Nouveau score")
 ax.set_ylabel("Densité")
@@ -230,7 +274,12 @@ sorted_scores, cdf = scorer.empirical_cdf(df_recipes_stats['new_score'])
 cdf_norm = stats.norm.cdf(x, mu, std)
 
 fig, ax = plt.subplots(figsize=(10, 6))
-ax.plot(sorted_scores, cdf, marker='.', linestyle='none', label='CDF nouveaux scores')
+ax.plot(
+    sorted_scores,
+    cdf,
+    marker='.',
+    linestyle='none',
+    label='CDF nouveaux scores')
 ax.plot(x, cdf_norm, 'r-', lw=2, label='CDF loi normale')
 ax.set_xlabel("Nouveau score")
 ax.set_ylabel("Fréquence cumulée")
@@ -239,11 +288,16 @@ plt.legend()
 plt.grid(True)
 plt.tight_layout()
 st.pyplot(fig)
-st.write(f"Paramètres de la distribution normale ajustée: μ = {mu:.2f}, σ = {std:.2f}")
+st.write(
+    f"Paramètres de la distribution normale ajustée: μ = {
+        mu:.2f}, σ = {
+            std:.2f}")
 
 # Calcul du MSE actuel
 mse_current = scorer.objective(poids_note)
-st.write(f"Erreur quadratique moyenne (MSE) avec la loi normale : {mse_current:.5f}")
+st.write(
+    f"Erreur quadratique moyenne (MSE) avec la loi normale : {
+        mse_current:.5f}")
 
 ###########################################
 # RECHERCHE DES POIDS OPTIMAUX
@@ -266,7 +320,9 @@ st.write(f"Poids du nombre de reviews : {optimal_poids_nb_reviews:.2f}")
 
 # MSE pour les scores optimaux
 mse_optimal = scorer.objective(optimal_poids_note)
-st.write(f"Erreur quadratique moyenne (MSE) pour les scores optimaux : {mse_optimal:.5f}")
+st.write(
+    f"Erreur quadratique moyenne (MSE) pour les scores optimaux : {
+        mse_optimal:.5f}")
 
 # Calcul des scores avec les poids optimaux
 df_recipes_stats['optimal_score'] = scorer.compute_score(optimal_poids_note)
@@ -277,7 +333,8 @@ fig, ax = plt.subplots(figsize=(10, 6))
 mu_opt, std_opt = stats.norm.fit(df_recipes_stats['optimal_score'])
 x = np.linspace(0, 100, 100)
 pdf_norm_opt = stats.norm.pdf(x, mu_opt, std_opt)
-ax.hist(df_recipes_stats['optimal_score'], bins=20, density=True, edgecolor='black', alpha=0.6)
+ax.hist(df_recipes_stats['optimal_score'], bins=20,
+        density=True, edgecolor='black', alpha=0.6)
 ax.plot(x, pdf_norm_opt, 'r-', lw=2, label='PDF loi normale')
 ax.set_xlabel("Score optimal")
 ax.set_ylabel("Densité")
@@ -289,11 +346,17 @@ st.pyplot(fig)
 
 # CDF des scores optimaux
 st.markdown("#### Fonction de répartition (CDF) des scores optimaux des recettes")
-sorted_scores_opt, cdf_opt = scorer.empirical_cdf(df_recipes_stats['optimal_score'])
+sorted_scores_opt, cdf_opt = scorer.empirical_cdf(
+    df_recipes_stats['optimal_score'])
 cdf_norm_opt = stats.norm.cdf(x, mu_opt, std_opt)
 
 fig, ax = plt.subplots(figsize=(10, 6))
-ax.plot(sorted_scores_opt, cdf_opt, marker='.', linestyle='none', label='CDF scores optimaux')
+ax.plot(
+    sorted_scores_opt,
+    cdf_opt,
+    marker='.',
+    linestyle='none',
+    label='CDF scores optimaux')
 ax.plot(x, cdf_norm_opt, 'r-', lw=2, label='CDF loi normale')
 ax.set_xlabel("Score optimal")
 ax.set_ylabel("Fréquence cumulée")
@@ -306,7 +369,7 @@ st.pyplot(fig)
 # CONCLUSION
 st.subheader("6) Conclusion sur la nouvelle méthode de scoring")
 st.markdown("""
-- On est parvenu à créer une nouvelle feature permettant de mieux évaluer les recettes en prenant en compte à la fois la qualité perçue par les utilisateurs (la  note) et la popularité auprès de ces derniers (le nombre de reviews).  
+- On est parvenu à créer une nouvelle feature permettant de mieux évaluer les recettes en prenant en compte à la fois la qualité perçue par les utilisateurs (la  note) et la popularité auprès de ces derniers (le nombre de reviews).
 - Le nouveau score permet de mieux discriminer les recettes grâce à une distribution proche d'une loi normale.
 - Il reste tout de même certaines recettes qu'on ne parvient pas à discriminer, notamment celles avec une seule review et une note moyenne égale à 5 (donc une seule note égale à 5).
 """)
@@ -314,7 +377,10 @@ st.markdown("""
 # AFFICHAGE DU TOP N
 
 # Fonction affichant les meilleures recettes selon le score optimal
-def display_top_n_recipes(df_recipes_stats, df_RAW_recipes, df_RAW_interactions, n=5, return_description=False, return_interactions=False):
+
+
+def display_top_n_recipes(df_recipes_stats, df_RAW_recipes, df_RAW_interactions,
+                          n=5, return_description=False, return_interactions=False):
     """
     Affiche les n meilleures recettes selon le score optimal et renvoie les données associées.
 
@@ -347,7 +413,8 @@ def display_top_n_recipes(df_recipes_stats, df_RAW_recipes, df_RAW_interactions,
         if return_description:
             st.write("Description de la recette:")
             # Convertir 'submitted' en format YYYY-MM-DD
-            df_RAW_recipes.loc[recipe_id, 'submitted'] = pd.to_datetime(df_RAW_recipes.loc[recipe_id, 'submitted']).strftime('%Y-%m-%d')
+            df_RAW_recipes.loc[recipe_id, 'submitted'] = pd.to_datetime(
+                df_RAW_recipes.loc[recipe_id, 'submitted']).strftime('%Y-%m-%d')
             st.write(df_RAW_recipes.loc[recipe_id].to_frame().T)
 
         # Ajouter les interactions associées
@@ -355,22 +422,36 @@ def display_top_n_recipes(df_recipes_stats, df_RAW_recipes, df_RAW_interactions,
             st.write("Interactions de la recette:")
             interactions = df_RAW_interactions[df_RAW_interactions['recipe_id'] == recipe_id]
             # Convertir 'date' en format YYYY-MM-DD
-            interactions['date'] = pd.to_datetime(interactions['date']).dt.strftime('%Y-%m-%d')
+            interactions['date'] = pd.to_datetime(
+                interactions['date']).dt.strftime('%Y-%m-%d')
             interactions = interactions.set_index('recipe_id')
             interactions = interactions.sort_values(by='date', ascending=False)
             st.write(interactions)
 
     return results
 
+
 # Exemple d'utilisation de la fonction
 st.subheader("7) Affichage des meilleures recettes selon leur score optimal")
 
 # Choix du nombre de recettes à afficher
-n = st.slider("Nombre de recettes à afficher", min_value=1, max_value=10, value=5)
+n = st.slider(
+    "Nombre de recettes à afficher",
+    min_value=1,
+    max_value=10,
+    value=5)
 
 # Choix de ce que l'utilisateur veut afficher
-return_description = st.checkbox("Afficher la description des recettes", value=True)
-return_interactions = st.checkbox("Afficher les interactions des recettes", value=False)
+return_description = st.checkbox(
+    "Afficher la description des recettes", value=True)
+return_interactions = st.checkbox(
+    "Afficher les interactions des recettes", value=False)
 
 # Afficher les résultats
-display_top_n_recipes(df_recipes_stats, df_RAW_recipes, df_RAW_interactions, n=n, return_description=return_description, return_interactions=return_interactions)
+display_top_n_recipes(
+    df_recipes_stats,
+    df_RAW_recipes,
+    df_RAW_interactions,
+    n=n,
+    return_description=return_description,
+    return_interactions=return_interactions)

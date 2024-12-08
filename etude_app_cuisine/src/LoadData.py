@@ -13,7 +13,7 @@ for item in files_and_dirs:
     print(item)
 
 url = 'https://drive.google.com/uc?id='
-url_df_recipes_tokenised  = url +'10aFfjOWpo4p42wNvRERYqygEEy9gTiK0'
+url_df_recipes_tokenised = url + '10aFfjOWpo4p42wNvRERYqygEEy9gTiK0'
 url_dico_all_month_ingredient1 = url + '1SLpu0QftR6sxm-B-ZO7w8JTcunTSqRO1'
 url_dico_all_month_ingredient2 = url + '1jeBNRknK3_OPN-eJ9nAgCDBwEK_80aLr'
 url_dico_all_month_ingredient3 = url + '1gnHyFY_48YyfTgchNqdYnxJY1YDMZ9ox'
@@ -29,7 +29,7 @@ url_dico_all_month_ingredient12 = url + '1HD2iIHzReNybdcdPxKpLQqrM3AXPSAoN'
 url_mapping = url + '1KWG2sRTxr74Opcth0dFF8fjNUU5qw3Te'
 url_RAW_interactions = url + '13SSK3DpPw9Az7bcIFja_qIpJARGoHHAr'
 url_RAW_recipes = url + '1GTx6HsCIoWKlGetIC_2KQWMEtJ-3Hts3'
-url_df_recipes_stats = url + '1w5UNQ_xDX7Txcxzz_XGA8yW_QnM8WpwA'  
+url_df_recipes_stats = url + '1w5UNQ_xDX7Txcxzz_XGA8yW_QnM8WpwA'
 url_RAW_recipes_json = url + '1zZ1cO20QQubjsrkpydwjo0cpzmt3YcmR'
 url_RAW_interactions_json = url + '1Ngz-ASoCXy4mlgf8BWFfYeZlrQuU3gln'
 
@@ -55,7 +55,7 @@ List_url = [
     url_RAW_interactions_json
 ]
 
-List_output =[
+List_output = [
     'df_recipes_tokenised.json',
     'dico_all_month_ingredient1.csv',
     'dico_all_month_ingredient2.csv',
@@ -75,7 +75,7 @@ List_output =[
     'df_recipes_stats.json',
     'df_RAW_recipes.json',
     'df_RAW_interactions.json'
-    
+
 ]
 
 path = 'data_loaded/'
