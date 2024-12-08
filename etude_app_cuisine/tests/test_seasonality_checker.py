@@ -1,7 +1,6 @@
 import pytest
 import pandas as pd
 import numpy as np
-from sklearn.preprocessing import normalize
 from models import SeasonalityChecker
 
 # --- Configuration des données de test ---
