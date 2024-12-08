@@ -324,6 +324,7 @@ class IngredientMatcher:
         list_ingredients_match = list(
             self.ingredient_match(ingredient, season).keys())
         list_valuable_match = []
+        list_valuable_match.append(ingredient)
         c = 0
 
         # Filtrer la liste pour récupérer les n ingrédient avec la plus grande variance
@@ -337,7 +338,7 @@ class IngredientMatcher:
                 list_valuable_match.append(match)
 
             c += 1
-
+        l
         return self.recipes_filter_by_ingredients(list_valuable_match, season)
 
     def seasonal_recommendations_1(self, ingredient, n):
