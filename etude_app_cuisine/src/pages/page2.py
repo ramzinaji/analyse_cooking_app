@@ -192,14 +192,73 @@ if st.button("Vérifier meilleure saison"):
     else:
         st.write("Veuillez entrer un ingrédient pour continuer.")
 
-# New feature
+###### New Feature ########
+
+threshold = 0.1  # Correction de l'orthographe de 'thresold' à 'threshold'
+
+st.title("Analyse de la fréquence des ingrédients par mois")
+
+# Sélection du mois avec un slider
+selected_month = st.slider("Sélectionnez le mois", 1, 12)
+
+# Entrer le nombre d'ingrédients à afficher
+# Limiter l'entrée pour qu'elle soit entre 1 et la taille maximale de la liste d'ingrédients pour le mois sélectionné
+max_ingredients = max(len(dico_all_month_ingredient[selected_month]), 3) - 2  # Assure que max_ingredients >=1
+top = st.number_input(
+    "Nombre d'ingrédients à afficher",
+    min_value=1,
+    max_value=max_ingredients,
+    value=min(20, max_ingredients)
+)
+
+# Affichage de l'histogramme pour le mois sélectionné en conservant l'ordre des ingrédients
+df_selected_month = dico_all_month_ingredient[selected_month].copy()
+
+df_selected_month['score'] = df_selected_month['ingredients'].apply(matcher.ingredient_score)
+df_selected_month = df_selected_month[df_selected_month['score'] > threshold]
+df_selected_month = df_selected_month.iloc[:top]
+
+# Création de l'histogramme avec Altair
+chart = alt.Chart(df_selected_month).mark_bar().encode(
+    x=alt.X('ingredients', sort=None),  # Conserve l'ordre d'origine des ingrédients
+    y='freq',
+    tooltip=['ingredients', 'freq']
+).properties(
+    width=600,
+    height=400,
+    title=f"Fréquence des ingrédients pour le mois : {selected_month}"
+)
+
+# Affichage du graphique dans Streamlit
+st.altair_chart(chart, use_container_width=True)
+
+### New feature ###
+
+st.title("Votre ingrédient est-il de saison ?")
+
+user_ingredient = st.text_input("Entrez votre ingrédient (en anglais) :", value="pumpkin")
+
+# Validation des données et bouton
+if st.button("Vérifier meilleure saison"):
+    if user_ingredient:
+        try:
+            ingredient = user_ingredient.strip()
+            # Appel de la fonction pour vérifier si l'ingrédient est de saison
+            answer = season_checker.is_seasonal(ingredient)
+            st.write(answer)
+            # Affichage de la courbe d'apparition de l'ingrédient
+            season_checker.plot_ingredient_frequency(ingredient)
+        except Exception as e:
+            st.write(f"Erreur: {e}")
+    else:
+        st.write("Veuillez entrer un ingrédient pour continuer.")
+
+### New feature ###
 
 st.title("Vous ne savez pas quoi cuisiner ? Trouvons la meilleure recette de saison qui vous correspond !")
 
 # Entrée utilisateur
-user_seasonal_ingredient = st.text_input(
-    "Entrez votre ingrédient de saison (en anglais):",
-    value="pumpkin")
+user_seasonal_ingredient = st.text_input("Entrez votre ingrédient de saison (en anglais):", value="pumpkin")
 n_best_fit_ingredient = st.number_input(
     "Combien d'autres ingrédients de saison voulez-vous ?",
     min_value=1,
@@ -212,8 +271,6 @@ ingredient = str(user_seasonal_ingredient.strip())
 N = int(n_best_fit_ingredient)
 
 # Fonction pour optimiser les poids et calculer les scores optimaux
-
-
 @st.cache_data
 def get_optimal_scores(_scorer, df_recipes_stats):
     """
@@ -232,10 +289,7 @@ def get_optimal_scores(_scorer, df_recipes_stats):
     return df_stats
 
 # Définition de la fonction pour afficher les recettes
-
-
-def display_top_n_recipes(df_recipes_stats, df_RAW_recipes, df_RAW_interactions, n=5,
-                          return_description=False, return_interactions=False, filter_recipe_names=None):
+def display_top_n_recipes(df_recipes_stats, df_RAW_recipes, df_RAW_interactions, n=5, return_description=False, return_interactions=False, filter_recipe_names=None):
     """
     Affiche les n meilleures recettes selon le score optimal et renvoie les données associées.
 
@@ -253,8 +307,7 @@ def display_top_n_recipes(df_recipes_stats, df_RAW_recipes, df_RAW_interactions,
     """
     # Filtrer les recettes par nom si filter_recipe_names est fourni
     if filter_recipe_names:
-        filtered_ids = df_RAW_recipes[df_RAW_recipes['name'].isin(
-            filter_recipe_names)].index
+        filtered_ids = df_RAW_recipes[df_RAW_recipes['name'].isin(filter_recipe_names)].index
         df_recipes_stats_filtered = df_recipes_stats.loc[filtered_ids]
     else:
         df_recipes_stats_filtered = df_recipes_stats
@@ -278,64 +331,54 @@ def display_top_n_recipes(df_recipes_stats, df_RAW_recipes, df_RAW_interactions,
         # Afficher les interactions de la recette
         if return_interactions:
             st.write("**Interactions de la recette:**")
-            interactions = df_RAW_interactions[df_RAW_interactions['recipe_id'] == recipe_id].copy(
-            )
-            interactions['date'] = pd.to_datetime(
-                interactions['date']).dt.strftime('%Y-%m-%d')
-            interactions = interactions.set_index(
-                'recipe_id').sort_values(by='date', ascending=False)
+            interactions = df_RAW_interactions[df_RAW_interactions['recipe_id'] == recipe_id].copy()
+            interactions['date'] = pd.to_datetime(interactions['date']).dt.strftime('%Y-%m-%d')
+            interactions = interactions.set_index('recipe_id').sort_values(by='date', ascending=False)
             st.write(interactions)
 
-
 # Vérification si l'utilisateur a saisi un ingrédient
-if user_seasonal_ingredient:
-    # Recherche des ingrédients et des recettes
-    # seasonal_month = int(matcher.ingredient_best_seasonal(ingredient))
+if st.button("Lancer la recherche"):
+    if user_seasonal_ingredient:
+        # Recherche des ingrédients et des recettes
+        result_N_match = matcher.seasonal_recommendations_1(ingredient, N)[1]
+        result_recipes = matcher.seasonal_recommendations_1(ingredient, N)[0]
 
-    result_N_match = matcher.seasonal_recommendations_1(ingredient, N)[1]
-    result_recipes = matcher.seasonal_recommendations_1(ingredient, N)[0]
+        st.subheader("Top ingrédients correspondants :")
+        st.table(pd.DataFrame(result_N_match, columns=["Ingrédients"]))
 
-    st.subheader("Top ingrédients correspondants :")
-    st.table(pd.DataFrame(result_N_match, columns=["Ingrédients"]))
+        if len(result_recipes) > 0:
+            st.subheader("Recettes recommandées :")
+            recommended_recipes = df_recipes_tokenised.loc[result_recipes, 'name'].reset_index(drop=True)
+            st.write(recommended_recipes)
 
-    st.subheader("Recettes recommandées :")
-    recommended_recipes = df_recipes_tokenised.loc[result_recipes, 'name'].reset_index(
-        drop=True)
-    st.write(recommended_recipes)
+            # Optimiser les poids et calculer les scores optimaux avec cache
+            df_recipes_stats_optimal = get_optimal_scores(scorer, df_recipes_stats)
 
-    # Optimiser les poids et calculer les scores optimaux avec cache
-    df_recipes_stats_optimal = get_optimal_scores(scorer, df_recipes_stats)
+            # Fonction de display
+            st.subheader("Affichage des meilleures recettes selon leur score optimal")
 
-    # Fonction de display
-    st.subheader("Affichage des meilleures recettes selon leur score optimal")
+            # Choix du nombre de recettes à afficher
+            max_recipes = len(recommended_recipes)
+            n = st.slider("Nombre de recettes à afficher", min_value=1, max_value=min(10, max_recipes), value=min(3, max_recipes))
 
-    # Choix du nombre de recettes à afficher
-    n = st.slider(
-        "Nombre de recettes à afficher",
-        min_value=1,
-        max_value=10,
-        value=3)
+            # Choix de ce que l'utilisateur veut afficher
+            return_description = st.checkbox("Afficher la description des recettes", value=True)
+            return_interactions = st.checkbox("Afficher les interactions des recettes", value=False)
 
-    # Choix de ce que l'utilisateur veut afficher
-    return_description = st.checkbox(
-        "Afficher la description des recettes", value=True)
-    return_interactions = st.checkbox(
-        "Afficher les interactions des recettes", value=False)
+            # Filtrer les noms des recettes
+            recipe_names = recommended_recipes.tolist()
 
-    # Filtrer les noms des recettes
-    recipe_names = recommended_recipes.tolist()
-
-    # Afficher les résultats
-    display_top_n_recipes(
-        df_recipes_stats_optimal,
-        df_RAW_recipes,
-        df_RAW_interactions,
-        n=n,
-        return_description=return_description,
-        return_interactions=return_interactions,
-        filter_recipe_names=recipe_names
-    )
-
-else:
-    st.warning(
-        "Veuillez entrer un ingrédient de saison pour obtenir des recommandations.")
+            # Afficher les résultats
+            display_top_n_recipes(
+                df_recipes_stats_optimal,
+                df_RAW_recipes,
+                df_RAW_interactions,
+                n=n,
+                return_description=return_description,
+                return_interactions=return_interactions,
+                filter_recipe_names=recipe_names
+            )
+        else:
+            st.warning("Aucune recette trouvée pour l'ingrédient donné.")
+    else:
+        st.warning("Veuillez entrer un ingrédient de saison pour obtenir des recommandations.")
