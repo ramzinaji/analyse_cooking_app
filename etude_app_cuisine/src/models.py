@@ -338,7 +338,7 @@ class IngredientMatcher:
                 list_valuable_match.append(match)
 
             c += 1
-        l
+        
         return self.recipes_filter_by_ingredients(list_valuable_match, season)
 
     def seasonal_recommendations_1(self, ingredient, n):
