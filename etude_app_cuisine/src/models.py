@@ -205,7 +205,6 @@ class SeasonalityChecker:
                     self.dico_all_month_ingredient[month].loc[ingredient].freq)
 
             ingredient_values = np.array(ingredient_values)
-            sigma_ingredient = np.var(ingredient_values)
 
             # Normalisation des valeurs
             ingredient_values_norm = normalize(
@@ -309,7 +308,6 @@ class IngredientMatcher:
         if len(ingredient_values) > 0:
             N = len(ingredient_values)
             ingredient_values = np.array(ingredient_values)
-            sigma_ingredient = np.var(ingredient_values)
 
             ingredient_values_norm = normalize(
                 ingredient_values.reshape(
@@ -404,7 +402,7 @@ class IngredientMatcher:
             return std_result[1][0]
 
 
-#### Classes scoring ####
+#Classes scoring
 
 class RecipeScorer:
     def __init__(self, df_recipes_stats):
