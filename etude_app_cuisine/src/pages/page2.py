@@ -192,7 +192,7 @@ if st.button("Vérifier meilleure saison"):
     else:
         st.write("Veuillez entrer un ingrédient pour continuer.")
 
-###### New Feature ########
+# New Feature
 
 threshold = 0.1  # Correction de l'orthographe de 'thresold' à 'threshold'
 
@@ -232,7 +232,7 @@ chart = alt.Chart(df_selected_month).mark_bar().encode(
 # Affichage du graphique dans Streamlit
 st.altair_chart(chart, use_container_width=True)
 
-### New feature ###
+# New feature
 
 st.title("Votre ingrédient est-il de saison ?")
 
@@ -253,7 +253,7 @@ if st.button("Vérifier meilleure saison"):
     else:
         st.write("Veuillez entrer un ingrédient pour continuer.")
 
-### New feature ###
+# New feature
 
 st.title("Vous ne savez pas quoi cuisiner ? Trouvons la meilleure recette de saison qui vous correspond !")
 
@@ -289,7 +289,15 @@ def get_optimal_scores(_scorer, df_recipes_stats):
     return df_stats
 
 # Définition de la fonction pour afficher les recettes
-def display_top_n_recipes(df_recipes_stats, df_RAW_recipes, df_RAW_interactions, n=5, return_description=False, return_interactions=False, filter_recipe_names=None):
+def display_top_n_recipes(
+    df_recipes_stats,
+    df_RAW_recipes,
+    df_RAW_interactions,
+    n=5,
+    return_description=False,
+    return_interactions=False,
+    filter_recipe_names=None
+):
     """
     Affiche les n meilleures recettes selon le score optimal et renvoie les données associées.
 
@@ -359,7 +367,12 @@ if st.button("Lancer la recherche"):
 
             # Choix du nombre de recettes à afficher
             max_recipes = len(recommended_recipes)
-            n = st.slider("Nombre de recettes à afficher", min_value=1, max_value=min(10, max_recipes), value=min(3, max_recipes))
+            n = st.slider(
+    "Nombre de recettes à afficher",
+    min_value=1,
+    max_value=min(10, max_recipes),
+    value=min(3, max_recipes)
+)
 
             # Choix de ce que l'utilisateur veut afficher
             return_description = st.checkbox("Afficher la description des recettes", value=True)
