@@ -34,10 +34,11 @@ jobs:
           poetry show     # Optional: List installed dependencies
           poetry run python --version
 
-      - name: Run Linting with Black
+      - name: Auto-format Code with autopep8
         working-directory: etude_app_cuisine
-        continue-on-error: true
-        run: poetry run black src tests
+        run: |
+          poetry run pip install autopep8  # Ensure autopep8 is installed
+          poetry run autopep8 --recursive --in-place --aggressive src tests
 
       - name: Run Linting with Flake8
         working-directory: etude_app_cuisine
