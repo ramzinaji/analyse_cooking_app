@@ -1,4 +1,3 @@
-
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -11,57 +10,58 @@ import os
 import sys
 import importlib
 
-
-# Chemin des fichiers (adapter selon votre environnement)
-# Get the current directory of the script
-# Chemin du répertoire courant (page)
+# Chemin des fichiers (adapter selon environnement)
 script_dir = os.path.dirname(__file__)
-
-# Aller dans le répertoire parent (monter d'un niveau)
 parent_dir = os.path.abspath(os.path.join(script_dir, os.pardir))
 
-# Aller dans le répertoire "data" depuis le parent
+# Ajouter les chemins nécessaires
 sys.path.append(script_dir)
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
 import models
-
 importlib.reload(models)
 
 print(f"Debug: RecipeScorer exists: {models.RecipeScorer}")
 
-
-# Path to the data_loaded folder
-
 data_dir = os.path.join(parent_dir, 'data_loaded')
 
-# Chemin du dossier contenant les fichiers CSV
+# Chemin des fichiers JSON
 chemin_raw_interactions = os.path.join(data_dir, 'df_RAW_interactions.json')
 chemin_raw_recipes = os.path.join(data_dir, 'df_RAW_recipes.json')
 chemin_recipes_stats = os.path.join(data_dir, 'df_recipes_stats.json')
 
-print(chemin_raw_interactions,chemin_raw_recipes,chemin_recipes_stats)
+print(chemin_raw_interactions, chemin_raw_recipes, chemin_recipes_stats)
+
+@st.cache_data
+def load_data():
+    """Charge les données JSON nécessaires."""
+    df_RAW_recipes = pd.read_json(chemin_raw_recipes, lines=True)
+    df_RAW_interactions = pd.read_json(chemin_raw_interactions, lines=True)
+    df_recipes_stats = pd.read_json(chemin_recipes_stats, lines=True)
+    return df_RAW_recipes, df_RAW_interactions, df_recipes_stats
 
 @st.cache_data
 def index_dataframes(df_recipes_stats, df_RAW_recipes):
+    """Indexe les DataFrames pour des accès plus rapides."""
     df_recipes_stats = df_recipes_stats.set_index('recipe_id')
     df_RAW_recipes = df_RAW_recipes.set_index('id')
     return df_recipes_stats, df_RAW_recipes
+
+@st.cache_resource
+def initialize_scorer(df_recipes_stats):
+    """Initialise l'objet RecipeScorer."""
+    return RecipeScorer(df_recipes_stats)
 
 ###########################################
 # INITIALISATION
 ###########################################
 
-# Charger les données
-df_RAW_recipes = pd.read_json(chemin_raw_recipes,  lines=True)
-df_RAW_interactions = pd.read_json(chemin_raw_interactions,  lines=True)
-df_recipes_stats = pd.read_json(chemin_recipes_stats,  lines=True)
-
-# Indexer les DataFrames
+# Charger et indexer les données
+df_RAW_recipes, df_RAW_interactions, df_recipes_stats = load_data()
 df_recipes_stats, df_RAW_recipes = index_dataframes(df_recipes_stats, df_RAW_recipes)
 
 # Initialisation de la classe RecipeScorer
-scorer = RecipeScorer(df_recipes_stats)
+scorer = initialize_scorer(df_recipes_stats)
 
 # Streamlit UI
 st.title("Nouvelle méthode de scoring des recettes")
