@@ -288,16 +288,14 @@ plt.legend()
 plt.grid(True)
 plt.tight_layout()
 st.pyplot(fig)
-st.write(
-    f"Paramètres de la distribution normale ajustée: μ = {
-        mu:.2f}, σ = {
-            std:.2f}")
+st.write(f"""Paramètres de la distribution normale ajustée: 
+μ = {mu:.2f}, 
+σ = {std:.2f}""")
 
 # Calcul du MSE actuel
 mse_current = scorer.objective(poids_note)
-st.write(
-    f"Erreur quadratique moyenne (MSE) avec la loi normale : {
-        mse_current:.5f}")
+st.write(f"""Erreur quadratique moyenne (MSE) avec la loi normale : 
+{mse_current:.5f}""")
 
 ###########################################
 # RECHERCHE DES POIDS OPTIMAUX
@@ -320,9 +318,8 @@ st.write(f"Poids du nombre de reviews : {optimal_poids_nb_reviews:.2f}")
 
 # MSE pour les scores optimaux
 mse_optimal = scorer.objective(optimal_poids_note)
-st.write(
-    f"Erreur quadratique moyenne (MSE) pour les scores optimaux : {
-        mse_optimal:.5f}")
+st.write(f"""Erreur quadratique moyenne (MSE) pour les scores optimaux : 
+{mse_optimal:.5f}""")
 
 # Calcul des scores avec les poids optimaux
 df_recipes_stats['optimal_score'] = scorer.compute_score(optimal_poids_note)
