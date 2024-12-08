@@ -351,6 +351,7 @@ class IngredientMatcher:
         sorted_dict = dict(sorted(dico_ingredient.items(), key=lambda item: item[1], reverse=True))
         list_ingredients_match = list(sorted_dict.keys())
         list_valuable_match = []
+        list_valuable_match.append(ingredient)
         c = 0
         total_count = 0
 
