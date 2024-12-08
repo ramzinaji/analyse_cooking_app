@@ -1,10 +1,38 @@
 import streamlit as st
+import logging
+import os
+
+
+# -----------------------------------
+# Logging Setup
+# -----------------------------------
+
+# Define the path to the log file
+LOG_DIR = "logs"
+os.makedirs(LOG_DIR, exist_ok=True)
+LOG_FILE = os.path.join(LOG_DIR, "streamlit_app.log")
+
+# Configure the logging system
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(message)s (%(filename)s:%(lineno)d)",
+    handlers=[
+        logging.FileHandler(LOG_FILE),
+        logging.StreamHandler()
+    ]
+)
+
+# Log an initialization message
+logging.info("Streamlit application initialized.")
 
 st.set_page_config(
     page_title="Page de Garde - Projet d'Analyse de Recettes",
     page_icon="🍽",
     layout="wide"
 )
+
+# Log page load
+logging.info("Main page loaded.")
 
 # Section Auteurs
 st.markdown("""
@@ -73,3 +101,6 @@ st.markdown("""
   complémentaires et accéder à des recettes populaires (selon notre propre score) basées sur ces ingrédients de
   saison.
 """)
+
+# Log successful completion of page
+logging.info("Main page content rendered successfully.")
