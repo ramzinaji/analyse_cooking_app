@@ -21,7 +21,7 @@ We implemented a **Continuous Integration (CI)** pipeline using **GitHub Actions
 
 2. **Render Deployment**:  
    - We migrated to **Render** to handle deployment.  
-   - You can view the app here: [Link to Render Deployment](#).  
+   - You can view the app here: [https://seasonal-cooking-buddy.onrender.com](#).  
    - While the **home page** works as expected, the **RAM limit** on the free plan prevents loading additional pages that require more memory for the data processing.  
 
 ---
