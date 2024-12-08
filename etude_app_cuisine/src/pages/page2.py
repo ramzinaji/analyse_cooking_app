@@ -6,8 +6,6 @@ import os
 import sys
 import importlib
 from models import RecipeScorer
-import numpy as np
-from scipy import stats
 
 # Get the current directory of the script
 script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -126,7 +124,7 @@ df_recipes_stats, df_RAW_recipes = index_dataframes(
 # Initialisation de la classe RecipeScorer
 scorer = initialize_scorer(df_recipes_stats)
 
-###### New Feature ########
+# New Feature
 
 threshold = 0.1  # Correction de l'orthographe de 'thresold' à 'threshold'
 
@@ -171,7 +169,7 @@ chart = alt.Chart(df_selected_month).mark_bar().encode(
 # Affichage du graphique dans Streamlit
 st.altair_chart(chart, use_container_width=True)
 
-### New feature ###
+# New feature
 
 st.title("Votre ingrédient est-il de saison ?")
 
@@ -194,7 +192,7 @@ if st.button("Vérifier meilleure saison"):
     else:
         st.write("Veuillez entrer un ingrédient pour continuer.")
 
-### New feature ###
+# New feature
 
 st.title("Vous ne savez pas quoi cuisiner ? Trouvons la meilleure recette de saison qui vous correspond !")
 
